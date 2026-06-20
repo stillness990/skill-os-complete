@@ -1,0 +1,117 @@
+{
+  "skills": {
+    "echo": {
+      "name": "echo",
+      "category": "devtools",
+      "path": "devtools/echo",
+      "intents": [],
+      "is_system": false
+    },
+    "ask": {
+      "name": "ask",
+      "category": "support",
+      "path": "skills/ask",
+      "intents": ["project_delivery", "learn_topic"],
+      "role": "preflight",
+      "is_system": false
+    },
+    "summarize": {
+      "name": "summarize",
+      "category": "core",
+      "path": "skills/core/summarize",
+      "intents": ["project_delivery", "debug_issue", "learn_topic"],
+      "role": "input_structurer",
+      "is_system": false
+    },
+    "planning": {
+      "name": "planning",
+      "category": "core",
+      "path": "skills/core/planning",
+      "intents": ["project_delivery", "learn_topic"],
+      "role": "planner",
+      "is_system": false,
+      "legacy_alias": "planner"
+    },
+    "debug": {
+      "name": "debug",
+      "category": "core",
+      "path": "skills/core/debug",
+      "intents": ["debug_issue"],
+      "role": "diagnostician",
+      "is_system": false
+    },
+    "task_ledger": {
+      "name": "task_ledger",
+      "category": "system",
+      "path": "system/task_ledger",
+      "intents": ["project_delivery", "debug_issue", "learn_topic"],
+      "role": "state_manager",
+      "is_system": true,
+      "legacy_alias": "task_manager"
+    },
+    "code_assistant": {
+      "name": "code_assistant",
+      "category": "execution",
+      "path": "skills/code_assistant",
+      "intents": ["project_delivery", "debug_issue"],
+      "role": "executor",
+      "is_system": false
+    },
+    "reviewer": {
+      "name": "reviewer",
+      "category": "execution",
+      "path": "skills/reviewer",
+      "intents": ["project_delivery"],
+      "role": "quality_gate",
+      "is_system": false
+    },
+    "changelog": {
+      "name": "changelog",
+      "category": "execution",
+      "path": "skills/changelog",
+      "intents": ["project_delivery"],
+      "role": "release",
+      "is_system": false
+    },
+    "sanitize": {
+      "name": "sanitize",
+      "category": "execution",
+      "path": "skills/sanitize",
+      "intents": ["project_delivery"],
+      "role": "publisher",
+      "is_system": false
+    },
+    "sop": {
+      "name": "sop",
+      "category": "execution",
+      "path": "skills/sop",
+      "intents": ["project_delivery", "debug_issue"],
+      "role": "documenter",
+      "is_system": false
+    },
+    "teach-plus": {
+      "name": "teach-plus",
+      "category": "learning",
+      "path": "skills/teach-plus",
+      "intents": ["learn_topic"],
+      "role": "learning_conductor",
+      "is_system": false
+    },
+    "debug_log": {
+      "name": "debug_log",
+      "category": "execution",
+      "path": "skills/debug_log",
+      "intents": ["debug_issue"],
+      "role": "archiver",
+      "is_system": false
+    },
+    "dify_kb_search": {
+      "name": "dify_kb_search",
+      "category": "execution",
+      "path": "skills/dify_kb_search",
+      "intents": [],
+      "role": "knowledge_search",
+      "is_system": false
+    }
+  }
+}

@@ -1,0 +1,21 @@
+{
+  "meta": {
+    "version": "1.0.0",
+    "project": "skill-os-complete",
+    "created": "2026-06-20T00:00:00",
+    "updated": "2026-06-20T14:30:21Z"
+  },
+  "tasks": [
+    {
+      "task_id": "tsk_20260620_001",
+      "title": "重构 summarize 目录结构",
+      "workflow": "delivery_pipeline",
+      "status": "queued",
+      "source": "planning",
+      "next_action": "",
+      "artifacts": [],
+      "created_at": "2026-06-20T14:30:21Z",
+      "updated_at": "2026-06-20T14:30:21Z"
+    }
+  ]
+}

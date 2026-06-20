@@ -1,0 +1,171 @@
+{
+  "workflows": {
+    "delivery_pipeline": {
+      "name": "delivery_pipeline",
+      "description": "项目交付管线：从需求到发布的标准链路",
+      "intent": "project_delivery",
+      "primary_skill": "planning",
+      "stages": [
+        {
+          "phase": "understand",
+          "skill": "summarize",
+          "mode": "briefing",
+          "output": "项目底稿"
+        },
+        {
+          "phase": "plan",
+          "skill": "planning",
+          "mode": "project",
+          "output": "阶段计划 + 今日行动"
+        },
+        {
+          "phase": "track",
+          "skill": "task_ledger",
+          "mode": "auto",
+          "output": "任务条目写入"
+        },
+        {
+          "phase": "execute",
+          "skill": "code_assistant",
+          "mode": "on_demand",
+          "output": "代码变更"
+        },
+        {
+          "phase": "review",
+          "skill": "reviewer",
+          "mode": "on_demand",
+          "output": "审查意见"
+        },
+        {
+          "phase": "release",
+          "skill": "changelog",
+          "mode": "on_demand",
+          "output": "变更日志"
+        }
+      ],
+      "secondary_skills": ["code_assistant", "reviewer", "changelog", "sanitize", "sop"],
+      "entry_conditions": {
+        "keywords": ["计划", "规划", "方案", "重构", "开发", "实现", "设计", "拆解", "怎么做", "从哪开始"],
+        "patterns": ["(出|写|生成|制定|帮我|给).+(计划|规划|方案|步骤|思路|路线)"]
+      }
+    },
+    "debug_pipeline": {
+      "name": "debug_pipeline",
+      "description": "诊断管线：从报错到修复归档的标准链路",
+      "intent": "debug_issue",
+      "primary_skill": "debug",
+      "stages": [
+        {
+          "phase": "summarize_optional",
+          "skill": "summarize",
+          "mode": "briefing",
+          "output": "问题背景底稿",
+          "optional": true
+        },
+        {
+          "phase": "diagnose",
+          "skill": "debug",
+          "mode": "full",
+          "output": "诊断报告"
+        },
+        {
+          "phase": "fix",
+          "skill": "code_assistant",
+          "mode": "on_demand",
+          "output": "代码修复"
+        },
+        {
+          "phase": "archive",
+          "skill": "debug_log",
+          "mode": "on_demand",
+          "output": "排查记录归档"
+        }
+      ],
+      "secondary_skills": ["summarize", "code_assistant", "debug_log"],
+      "entry_conditions": {
+        "keywords": ["报错", "bug", "诊断", "排查", "不工作", "异常", "莫名其妙", "不知道为什么"],
+        "patterns": ["(为什么|怎么).+(报错|不工作|出问题|不对劲|卡住)", "(帮我|帮我看看|帮我诊断|帮我排查).+(报错|bug|问题|异常)"]
+      }
+    },
+    "learning_pipeline": {
+      "name": "learning_pipeline",
+      "description": "学习管线：从学习请求到每日练习、复盘的标准学习链路（Phase 2 正式版）",
+      "intent": "learn_topic",
+      "primary_skill": "teach-plus",
+      "stages": [
+        {
+          "phase": "clarify",
+          "skill": "ask",
+          "mode": "on_demand",
+          "output": "澄清学习目标与范围",
+          "optional": true,
+          "trigger": "学习目标不清晰时"
+        },
+        {
+          "phase": "summarize",
+          "skill": "summarize",
+          "mode": "briefing",
+          "output": "学习底稿"
+        },
+        {
+          "phase": "plan",
+          "skill": "planning",
+          "mode": "learning",
+          "output": "阶段学习计划"
+        },
+        {
+          "phase": "explain",
+          "skill": "teach-plus",
+          "mode": "explain",
+          "output": "理解框架",
+          "trigger": "用户首次接触学习对象或需要建立整体理解"
+        },
+        {
+          "phase": "practice",
+          "skill": "teach-plus",
+          "mode": "practice",
+          "output": "每日学习单 + 练习任务",
+          "trigger": "已有学习计划，需要转成每日可执行动作"
+        },
+        {
+          "phase": "track",
+          "skill": "task_ledger",
+          "mode": "auto",
+          "output": "学习任务写入 task_ledger",
+          "optional": true
+        },
+        {
+          "phase": "review",
+          "skill": "teach-plus",
+          "mode": "review",
+          "output": "周复盘报告",
+          "trigger": "一周学习结束或用户要求复盘"
+        }
+      ],
+      "secondary_skills": ["summarize", "planning", "ask", "task_ledger", "debug"],
+      "entry_conditions": {
+        "keywords": ["我想学", "学会", "教我", "入门", "系统学习", "学习路线", "每日练习", "今天学什么", "复盘", "本周复盘", "学习复盘", "帮我设计学习", "学习计划"],
+        "patterns": [
+          "(我想学|我想.*学会|我要学).+",
+          "(教我|带我).+(学|入门|理解).+",
+          "(帮我|给我).+(学习|复盘|练习).+",
+          "(今天|今日).+(学什么|学习|练习).+"
+        ]
+      },
+      "mode_routing": {
+        "explain": {
+          "keywords": ["讲明白", "是什么", "梳理", "理解", "入门", "帮我讲", "解释"],
+          "description": "用户需要建立理解框架时走 explain"
+        },
+        "practice": {
+          "keywords": ["练习", "今天学什么", "今日任务", "学习单", "训练", "动手", "练一下"],
+          "description": "用户需要每日可执行学习任务时走 practice"
+        },
+        "review": {
+          "keywords": ["复盘", "本周", "上周", "回顾", "总结一下学习", "学得怎么样"],
+          "description": "用户需要阶段性复盘时走 review"
+        }
+      }
+    }
+  }
+}
