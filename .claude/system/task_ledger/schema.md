@@ -78,18 +78,21 @@ v4.0.0（Skill OS v4 — 扩展状态机 + execution_guard 约束）
 | `created_at` | string | ✅ | 创建时间（ISO8601） |
 | `updated_at` | string | ✅ | 最后更新时间（ISO8601） |
 
-## 状态集合（v4 扩展）
+## 状态集合（v4 扩展 — 全系统统一词汇）
 
 | 状态 | 含义 | 合法来源 | 合法去向 |
 |------|------|---------|---------|
-| `queued` | 排队中，待开始 | （初始状态） | `planning` |
+| `queued` | 排队中，待开始 | （初始状态） | `planning`, `cancelled` |
 | `planning` | 规划中 | `queued`, `blocked` | `executing`, `blocked`, `done`（仅 plan_only）, `cancelled` |
 | `executing` | 执行中 | `planning`, `retrying`, `blocked` | `blocked`, `retrying`, `done`, `cancelled` |
 | `blocked` | 被阻塞 | `planning`, `executing` | `planning`, `executing`, `cancelled` |
-| `retrying` | 重试中 | `executing` | `executing`, `blocked`, `cancelled` |
+| `retrying` | 重试中 | `executing` | `executing`, `blocked`, `stalled`, `cancelled` |
 | `stalled` | 卡住/超时未更新 | `planning`, `executing`, `retrying` | `planning`, `executing`, `cancelled` |
 | `done` | 已完成（终态） | `planning`（仅 plan_only）, `executing` | — |
 | `cancelled` | 已取消（终态） | 任意非终态 | — |
+
+> **兼容说明**：旧代码中使用的 `in_progress` → 映射为 `executing`；`retry` → 映射为 `retrying`。
+> v1→v4 迁移映射定义在 `orchestration/orchestration_types.py` 的 `V1_TO_V4_STATUS` 中。
 
 ## 状态流转图（v4）
 

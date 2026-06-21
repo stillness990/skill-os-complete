@@ -1,0 +1,227 @@
+{
+  "version": "1.0.0",
+  "description": "路由示例库 — 标注的输入→intent→workflow 训练/测试数据",
+  "examples": [
+    {
+      "id": "ex_delivery_001",
+      "input": "读取项目并评估功能，再给升级方案",
+      "normalized": "读取项目并评估功能，再给升级方案",
+      "intent": "project_delivery",
+      "workflow": "delivery_pipeline",
+      "detected_types": ["repo_analysis"],
+      "slash_commands": [],
+      "multi_intent": false,
+      "expected_stages": ["summarize", "planning"]
+    },
+    {
+      "id": "ex_delivery_002",
+      "input": "生成 Claude 施工单",
+      "normalized": "生成 Claude 施工单",
+      "intent": "project_delivery",
+      "workflow": "delivery_pipeline",
+      "detected_types": ["construction_prompt"],
+      "slash_commands": [],
+      "multi_intent": false,
+      "expected_stages": ["summarize", "planning", "ask"]
+    },
+    {
+      "id": "ex_delivery_003",
+      "input": "/plan 重构路由系统",
+      "normalized": "重构路由系统",
+      "intent": "project_delivery",
+      "workflow": "delivery_pipeline",
+      "detected_types": ["planning"],
+      "slash_commands": ["/plan"],
+      "multi_intent": false,
+      "expected_stages": ["summarize", "planning"]
+    },
+    {
+      "id": "ex_delivery_004",
+      "input": "帮我制定一个项目计划，把现有系统升级到 v5",
+      "normalized": "帮我制定一个项目计划，把现有系统升级到 v5",
+      "intent": "project_delivery",
+      "workflow": "delivery_pipeline",
+      "detected_types": ["planning"],
+      "slash_commands": [],
+      "multi_intent": false,
+      "expected_stages": ["summarize", "planning"]
+    },
+    {
+      "id": "ex_delivery_005",
+      "input": "分析这个仓库的架构并给出重构方案",
+      "normalized": "分析这个仓库的架构并给出重构方案",
+      "intent": "project_delivery",
+      "workflow": "delivery_pipeline",
+      "detected_types": ["repo_analysis", "planning"],
+      "slash_commands": [],
+      "multi_intent": false,
+      "expected_stages": ["summarize", "planning"]
+    },
+    {
+      "id": "ex_delivery_006",
+      "input": "这一步做完了，下一步做什么",
+      "normalized": "这一步做完了，下一步做什么",
+      "intent": "project_delivery",
+      "workflow": "delivery_pipeline",
+      "detected_types": ["planning"],
+      "slash_commands": ["/next"],
+      "multi_intent": false,
+      "expected_stages": ["planning"]
+    },
+    {
+      "id": "ex_delivery_007",
+      "input": "/task 查看当前进度",
+      "normalized": "查看当前进度",
+      "intent": "project_delivery",
+      "workflow": "delivery_pipeline",
+      "detected_types": ["planning"],
+      "slash_commands": ["/task"],
+      "multi_intent": false,
+      "expected_stages": ["task_ledger"]
+    },
+    {
+      "id": "ex_debug_001",
+      "input": "docker compose up 报 permission denied",
+      "normalized": "docker compose up 报 permission denied",
+      "intent": "debug_issue",
+      "workflow": "debug_pipeline",
+      "detected_types": ["debug"],
+      "slash_commands": [],
+      "multi_intent": false,
+      "expected_stages": ["debug"]
+    },
+    {
+      "id": "ex_debug_002",
+      "input": "系统启动时报 KeyError: 'config'，帮我诊断",
+      "normalized": "系统启动时报 KeyError: 'config'，帮我诊断",
+      "intent": "debug_issue",
+      "workflow": "debug_pipeline",
+      "detected_types": ["debug"],
+      "slash_commands": [],
+      "multi_intent": false,
+      "expected_stages": ["summarize", "debug"]
+    },
+    {
+      "id": "ex_debug_003",
+      "input": "/debug 为什么 npm install 失败了",
+      "normalized": "为什么 npm install 失败了",
+      "intent": "debug_issue",
+      "workflow": "debug_pipeline",
+      "detected_types": ["debug"],
+      "slash_commands": ["/debug"],
+      "multi_intent": false,
+      "expected_stages": ["debug"]
+    },
+    {
+      "id": "ex_debug_004",
+      "input": "报错了，不工作，不知道为什么",
+      "normalized": "报错了，不工作，不知道为什么",
+      "intent": "debug_issue",
+      "workflow": "debug_pipeline",
+      "detected_types": ["debug"],
+      "slash_commands": [],
+      "multi_intent": false,
+      "expected_stages": ["debug"]
+    },
+    {
+      "id": "ex_debug_005",
+      "input": "代码运行结果和预期不一样，帮我排查",
+      "normalized": "代码运行结果和预期不一样，帮我排查",
+      "intent": "debug_issue",
+      "workflow": "debug_pipeline",
+      "detected_types": ["debug"],
+      "slash_commands": [],
+      "multi_intent": false,
+      "expected_stages": ["debug"]
+    },
+    {
+      "id": "ex_learn_001",
+      "input": "我想学 Python 异步编程",
+      "normalized": "我想学 Python 异步编程",
+      "intent": "learn_topic",
+      "workflow": "learning_pipeline",
+      "detected_types": ["learning"],
+      "slash_commands": [],
+      "multi_intent": false,
+      "expected_stages": ["summarize", "planning", "explain"]
+    },
+    {
+      "id": "ex_learn_002",
+      "input": "教我 Docker 网络原理",
+      "normalized": "教我 Docker 网络原理",
+      "intent": "learn_topic",
+      "workflow": "learning_pipeline",
+      "detected_types": ["learning"],
+      "slash_commands": [],
+      "multi_intent": false,
+      "expected_stages": ["summarize", "planning", "explain"]
+    },
+    {
+      "id": "ex_learn_003",
+      "input": "今天学什么",
+      "normalized": "今天学什么",
+      "intent": "learn_topic",
+      "workflow": "learning_pipeline",
+      "detected_types": ["learning"],
+      "slash_commands": [],
+      "multi_intent": false,
+      "expected_stages": ["practice"]
+    },
+    {
+      "id": "ex_learn_004",
+      "input": "帮我设计学习 Kubernetes 的路线",
+      "normalized": "帮我设计学习 Kubernetes 的路线",
+      "intent": "learn_topic",
+      "workflow": "learning_pipeline",
+      "detected_types": ["learning"],
+      "slash_commands": [],
+      "multi_intent": false,
+      "expected_stages": ["summarize", "planning"]
+    },
+    {
+      "id": "ex_learn_005",
+      "input": "复盘一下本周的学习情况",
+      "normalized": "复盘一下本周的学习情况",
+      "intent": "learn_topic",
+      "workflow": "learning_pipeline",
+      "detected_types": ["learning"],
+      "slash_commands": [],
+      "multi_intent": false,
+      "expected_stages": ["review"]
+    },
+    {
+      "id": "ex_multi_001",
+      "input": "系统报错了，帮我诊断并制定修复计划",
+      "normalized": "系统报错了，帮我诊断并制定修复计划",
+      "intent": "debug_issue",
+      "workflow": "debug_pipeline",
+      "detected_types": ["debug", "planning"],
+      "slash_commands": [],
+      "multi_intent": true,
+      "secondary_intent": "project_delivery",
+      "expected_stages": ["summarize", "debug"]
+    },
+    {
+      "id": "ex_fallback_001",
+      "input": "今天天气怎么样",
+      "normalized": "今天天气怎么样",
+      "intent": "unknown",
+      "workflow": null,
+      "detected_types": [],
+      "slash_commands": [],
+      "multi_intent": false,
+      "expected_stages": []
+    },
+    {
+      "id": "ex_fallback_002",
+      "input": "你好",
+      "normalized": "你好",
+      "intent": "unknown",
+      "workflow": null,
+      "detected_types": [],
+      "slash_commands": [],
+      "multi_intent": false,
+      "expected_stages": []
+    }
+  ]
+}

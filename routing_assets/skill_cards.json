@@ -1,0 +1,127 @@
+{
+  "version": "1.0.0",
+  "description": "Skill 描述卡片 — 供 rule-router 做 skill-level 匹配",
+  "skills": [
+    {
+      "name": "summarize",
+      "category": "core",
+      "description": "知识整理与 briefing 生成器 — 将输入提炼为结构化摘要",
+      "modes": ["basic", "briefing"],
+      "keywords": {
+        "zh": ["总结", "摘要", "提炼", "读懂", "概括", "归纳", "梳理"],
+        "en": ["summarize", "summary", "brief", "overview", "digest"]
+      },
+      "intents": ["project_delivery", "debug_issue", "learn_topic"],
+      "stage_hint": "understand"
+    },
+    {
+      "name": "planning",
+      "category": "core",
+      "description": "任务拆解与执行计划生成器 — 将目标拆为可执行阶段",
+      "modes": ["project", "learning"],
+      "keywords": {
+        "zh": ["计划", "规划", "方案", "拆解", "步骤", "路线", "从哪开始", "怎么做"],
+        "en": ["plan", "planning", "roadmap", "milestone", "breakdown"]
+      },
+      "intents": ["project_delivery", "learn_topic"],
+      "stage_hint": "plan"
+    },
+    {
+      "name": "debug",
+      "category": "core",
+      "description": "诊断引擎 — 现象→复现→假设→验证→根因→修复建议",
+      "modes": ["diagnosis", "regression"],
+      "keywords": {
+        "zh": ["报错", "诊断", "排查", "异常", "不工作", "bug", "根因"],
+        "en": ["debug", "diagnose", "troubleshoot", "root cause", "error"]
+      },
+      "intents": ["debug_issue"],
+      "stage_hint": "diagnose"
+    },
+    {
+      "name": "teach-plus",
+      "category": "learning",
+      "description": "学习工作流控制器 — explain/practice/review 三模式",
+      "modes": ["explain", "practice", "review"],
+      "keywords": {
+        "zh": ["学习", "教程", "练习", "复盘", "教我", "理解", "训练"],
+        "en": ["learn", "study", "practice", "review", "teach", "tutorial"]
+      },
+      "intents": ["learn_topic"],
+      "stage_hint": "explain|practice|review"
+    },
+    {
+      "name": "ask",
+      "category": "execution",
+      "description": "需求澄清 — 在模糊需求下提出最多 3 个澄清问题",
+      "modes": ["clarify"],
+      "keywords": {
+        "zh": ["我想做", "有个想法", "帮我想想", "不确定"],
+        "en": ["clarify", "question", "unsure", "vague"]
+      },
+      "intents": ["project_delivery", "learn_topic"],
+      "stage_hint": "clarify"
+    },
+    {
+      "name": "code_assistant",
+      "category": "execution",
+      "description": "代码编写/修复/重构 — 读现状后修改代码",
+      "modes": ["write", "fix", "refactor"],
+      "keywords": {
+        "zh": ["写代码", "修复", "重构", "帮我写", "改一下", "实现"],
+        "en": ["code", "fix", "refactor", "implement", "write"]
+      },
+      "intents": ["project_delivery", "debug_issue"],
+      "stage_hint": "execute|fix"
+    },
+    {
+      "name": "reviewer",
+      "category": "execution",
+      "description": "代码审查 — 只读审查，不修改代码",
+      "modes": ["review"],
+      "keywords": {
+        "zh": ["review", "代码审查", "帮我检查", "审查"],
+        "en": ["review", "code review", "inspect", "audit"]
+      },
+      "intents": ["project_delivery"],
+      "stage_hint": "review"
+    },
+    {
+      "name": "changelog",
+      "category": "execution",
+      "description": "变更日志生成 — 从对话或 git diff 生成 changelog",
+      "modes": ["generate"],
+      "keywords": {
+        "zh": ["changelog", "更新日志", "版本说明", "发布说明"],
+        "en": ["changelog", "release notes", "version history"]
+      },
+      "intents": ["project_delivery"],
+      "stage_hint": "release"
+    },
+    {
+      "name": "task_ledger",
+      "category": "system",
+      "description": "任务账本 — 系统层任务状态管理",
+      "modes": ["auto"],
+      "keywords": {
+        "zh": ["任务", "下一步", "当前进度", "任务列表"],
+        "en": ["task", "next", "progress", "ledger"]
+      },
+      "intents": ["project_delivery", "debug_issue", "learn_topic"],
+      "stage_hint": "track"
+    },
+    {
+      "name": "execution_guard",
+      "category": "guard",
+      "description": "执行监督 — 校验任务完成条件和状态流转合法性",
+      "modes": ["auto"],
+      "keywords": {
+        "zh": [],
+        "en": ["guard", "validate", "check"]
+      },
+      "intents": ["project_delivery", "debug_issue", "learn_topic"],
+      "stage_hint": "guard",
+      "auto_trigger": true
+    }
+  ]
+}

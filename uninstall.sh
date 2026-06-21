@@ -27,6 +27,12 @@ echo "    • .claude/system/"
 echo "    • .claude/workflows/"
 echo "    • .claude/orchestration/"
 echo "    • .claude/agents/"
+echo "    • orchestration/ (根目录编排模块)"
+echo "    • routing_assets/ (路由资产模块)"
+echo "    • ledger/ (任务账本模块)"
+echo "    • tests/ (测试套件)"
+echo "    • docs/ (升级文档)"
+echo "    • reports/ (交付报告)"
 echo ""
 echo "  ⚠ settings.json 中的 hook 条目需要手动移除"
 echo ""
@@ -66,6 +72,12 @@ rm -rf "$TARGET/.claude/system"
 rm -rf "$TARGET/.claude/workflows"
 rm -rf "$TARGET/.claude/orchestration"
 rm -rf "$TARGET/.claude/agents"
+rm -rf "$TARGET/orchestration" 2>/dev/null || true
+rm -rf "$TARGET/routing_assets" 2>/dev/null || true
+rm -rf "$TARGET/ledger" 2>/dev/null || true
+rm -rf "$TARGET/tests" 2>/dev/null || true
+rm -rf "$TARGET/docs" 2>/dev/null || true
+rm -rf "$TARGET/reports" 2>/dev/null || true
 
 echo "  ✓ 已移除"
 

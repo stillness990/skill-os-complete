@@ -112,7 +112,7 @@ bash /path/to/skill-os-complete/install.sh
 
 ---
 
-## 内置技能（14 个）
+## 内置技能（15 个）
 
 ### 核心基座（Core Skills）
 
@@ -138,6 +138,7 @@ bash /path/to/skill-os-complete/install.sh
 | `reviewer` | `review`、`代码审查` | 代码质量检查 |
 | `changelog` | `changelog`、`更新日志` | 变更日志生成 |
 | `sanitize` | `脱敏`、`消毒`、`sanitize` | 敏感信息清理 |
+| `knowledge-asset` | `沉淀`、`知识资产`、`知识管理` | 任务/问题/项目 → 结构化知识资产 |
 
 ### 系统层
 
@@ -201,8 +202,20 @@ teach-plus 建立在 summarize + planning + task_ledger + learning_state + execu
 ```text
 skill-os-complete/
 ├── CLAUDE.md                               # 仓库操作手册
-├── install.sh                              # 一键安装脚本
 ├── README.md                               # 本文件
+├── install.sh                              # 一键安装脚本
+├── deploy.sh                               # 一键部署/升级脚本
+├── uninstall.sh                            # 一键卸载脚本
+├── docs/                                   # 升级/验证/架构文档
+│   ├── upgrade/                            #   分阶段升级 runbook
+│   ├── validation/                         #   验收 checklist
+│   ├── architecture/                       #   架构说明
+│   └── failure/                            #   故障恢复方案
+├── reports/                                # Phase 1~6 交付报告
+├── routing_assets/                         # 路由资产（语义路由/规则路由测试）
+├── orchestration/                          # Phase 4+ 编排模块（workflow_resolver/execution_guard/safe_mode/...）
+├── ledger/                                 # 任务账本 Python 模块
+├── tests/                                  # 自动化测试套件
 └── .claude/
     ├── settings.json                       # Hook 注册入口
     ├── skill-rules.json                    # 路由关键词规则
@@ -239,6 +252,7 @@ skill-os-complete/
     │   ├── reviewer/
     │   ├── changelog/
     │   ├── sanitize/
+    │   ├── knowledge-asset/            # 知识资产系统
     │   ├── sop/
     │   ├── debug_log/
     │   ├── echo/

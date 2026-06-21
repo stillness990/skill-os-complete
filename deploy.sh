@@ -113,6 +113,52 @@ if [ -f "$SCRIPT_DIR/.claude/agents/README.md" ]; then
   echo "  ✓ agents/README.md"
 fi
 
+	# ── 4.5. 同步新增根目录模块（orchestration/routing_assets/tests/ledger） ──
+	echo ""
+	echo "  ── 同步新增模块 ──"
+
+	# orchestration 模块（Phase 4+ 编排引擎）
+	if [ -d "$SCRIPT_DIR/orchestration" ]; then
+	  mkdir -p "$TARGET/orchestration"
+	  cp -r "$SCRIPT_DIR/orchestration/"*.py "$TARGET/orchestration/" 2>/dev/null || true
+	  echo "  ✓ orchestration/ (phase 4+ 模块)"
+	fi
+
+	# routing_assets 模块
+	if [ -d "$SCRIPT_DIR/routing_assets" ]; then
+	  mkdir -p "$TARGET/routing_assets"
+	  cp -r "$SCRIPT_DIR/routing_assets/"*.py "$SCRIPT_DIR/routing_assets/"*.json "$TARGET/routing_assets/" 2>/dev/null || true
+	  echo "  ✓ routing_assets/"
+	fi
+
+	# ledger 模块
+	if [ -d "$SCRIPT_DIR/ledger" ]; then
+	  mkdir -p "$TARGET/ledger"
+	  cp -r "$SCRIPT_DIR/ledger/"*.py "$TARGET/ledger/" 2>/dev/null || true
+	  echo "  ✓ ledger/"
+	fi
+
+	# tests 模块
+	if [ -d "$SCRIPT_DIR/tests" ]; then
+	  mkdir -p "$TARGET/tests"
+	  cp -r "$SCRIPT_DIR/tests/"*.py "$TARGET/tests/" 2>/dev/null || true
+	  echo "  ✓ tests/"
+	fi
+
+	# docs 模块
+	if [ -d "$SCRIPT_DIR/docs" ]; then
+	  mkdir -p "$TARGET/docs"
+	  cp -r "$SCRIPT_DIR/docs/"* "$TARGET/docs/" 2>/dev/null || true
+	  echo "  ✓ docs/"
+	fi
+
+	# reports 模块
+	if [ -d "$SCRIPT_DIR/reports" ]; then
+	  mkdir -p "$TARGET/reports"
+	  cp -r "$SCRIPT_DIR/reports/"*.md "$TARGET/reports/" 2>/dev/null || true
+	  echo "  ✓ reports/"
+	fi
+
 # ── 5. 同步 v4 修改的文件（核心技能 + workflow + schema） ──
 echo ""
 echo "  ── 同步 v4 更新的文件 ──"
@@ -132,6 +178,13 @@ if [ -d "$SCRIPT_DIR/.claude/skills/teach-plus" ]; then
   cp -r "$SCRIPT_DIR/.claude/skills/teach-plus/"* "$TARGET/.claude/skills/teach-plus/"
   echo "  ✓ skills/teach-plus/"
 fi
+
+	# knowledge-asset
+	if [ -d "$SCRIPT_DIR/.claude/skills/knowledge-asset" ]; then
+	  mkdir -p "$TARGET/.claude/skills/knowledge-asset"
+	  cp -r "$SCRIPT_DIR/.claude/skills/knowledge-asset/"* "$TARGET/.claude/skills/knowledge-asset/"
+	  echo "  ✓ skills/knowledge-asset/"
+	fi
 
 # workflow 文档
 if [ -d "$SCRIPT_DIR/.claude/workflows" ]; then
@@ -206,7 +259,8 @@ for check in \
   "$TARGET/.claude/hooks/task-guard.py" \
   "$TARGET/.claude/hooks/completion-guard.py" \
   "$TARGET/.claude/orchestration/README.md" \
-  "$TARGET/.claude/agents/README.md"
+  "$TARGET/.claude/agents/README.md" \
+  "$TARGET/.claude/skills/knowledge-asset/SKILL.md"
 do
   if [ -f "$check" ]; then
     echo "  ✓ $(echo $check | sed "s|$TARGET/.claude/||")"
@@ -235,8 +289,11 @@ echo "  备份位置：.claude/backups/$BACKUP_NAME-*"
 echo "  如需回滚：cp .claude/backups/$BACKUP_NAME-settings.json .claude/settings.json"
 echo ""
 echo "  v4 新增模块已就绪："
-echo "    • execution_guard  — 5 规则 + 2 hook + 状态机"
-echo "    • learning_state   — 7 阶段状态机 + 断档恢复"
-echo "    • orchestration    — Phase 4 多代理占位"
-echo "    • agents           — Phase 4 代理定义占位"
+echo "    • execution_guard   — 5 规则 + 2 hook + 状态机"
+echo "    • learning_state    — 7 阶段状态机 + 断档恢复"
+echo "    • knowledge-asset   — 知识资产系统（15 技能）"
+echo "    • orchestration     — Phase 4+ 编排模块"
+echo "    • routing_assets    — 路由资产测试"
+echo "    • tests             — 自动化测试套件"
+echo "    • docs/reports      — 升级文档 + 交付报告"
 echo ""

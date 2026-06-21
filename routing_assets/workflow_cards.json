@@ -1,0 +1,84 @@
+{
+  "version": "1.0.0",
+  "description": "Workflow 描述卡片 — 供 rule-router 和 semantic-router 匹配",
+  "workflows": [
+    {
+      "name": "delivery_pipeline",
+      "intent": "project_delivery",
+      "description": "项目交付管线：从需求理解到发布的标准工程链路",
+      "primary_skill": "planning",
+      "trigger_keywords": {
+        "zh": [
+          "计划", "规划", "方案", "重构", "开发", "实现", "设计",
+          "拆解", "怎么做", "从哪开始", "升级方案", "施工单",
+          "项目计划", "重构方案", "架构设计", "需求分析",
+          "评估功能", "分析项目", "代码审查", "变更",
+          "下一步", "当前进度", "任务列表"
+        ],
+        "en": [
+          "plan", "planning", "architecture", "refactor", "implement",
+          "design", "build", "develop", "delivery", "release",
+          "task", "next", "progress"
+        ]
+      },
+      "trigger_patterns": [
+        "(出|写|生成|制定|帮我|给).+(计划|规划|方案|步骤|思路|路线)",
+        "(读取|分析|评估|审查).+(项目|代码|仓库|功能).+(方案|建议|计划)",
+        "(重构|升级|改进|优化).+(系统|架构|代码|模块)"
+      ],
+      "negative_keywords": ["报错", "bug", "不工作", "诊断", "为什么", "学", "教程"],
+      "priority": 1
+    },
+    {
+      "name": "debug_pipeline",
+      "intent": "debug_issue",
+      "description": "诊断管线：从报错到修复归档的标准排查链路",
+      "primary_skill": "debug",
+      "trigger_keywords": {
+        "zh": [
+          "报错", "bug", "诊断", "排查", "不工作", "异常",
+          "莫名其妙", "不知道为什么", "不对劲", "卡住",
+          "失败", "出错", "崩溃", "错误", "Error",
+          "permission denied", "command not found", "traceback"
+        ],
+        "en": [
+          "debug", "error", "bug", "fix", "diagnose", "troubleshoot",
+          "broken", "crash", "fail", "exception", "stack trace"
+        ]
+      },
+      "trigger_patterns": [
+        "(为什么|怎么).+(报错|不工作|出问题|不对劲|卡住|失败)",
+        "(帮我|帮我看看|帮我诊断|帮我排查).+(报错|bug|问题|异常|错误)",
+        ".+(报|出现|遇到).+(错误|异常|bug|问题)"
+      ],
+      "negative_keywords": ["计划", "方案", "学习", "教程"],
+      "priority": 2
+    },
+    {
+      "name": "learning_pipeline",
+      "intent": "learn_topic",
+      "description": "学习管线：从学习请求到每日练习、复盘的标准学习链路",
+      "primary_skill": "teach-plus",
+      "trigger_keywords": {
+        "zh": [
+          "我想学", "学会", "教我", "入门", "系统学习", "学习路线",
+          "每日练习", "今天学什么", "复盘", "本周复盘", "学习复盘",
+          "帮我设计学习", "学习计划", "练习", "训练", "理解",
+          "讲明白", "梳理", "是什么", "回顾"
+        ],
+        "en": [
+          "learn", "study", "tutorial", "teach", "practice",
+          "review", "exercise", "training"
+        ]
+      },
+      "trigger_patterns": [
+        "(我想学|我想.*学会|我要学).+",
+        "(教我|带我).+(学|入门|理解).+",
+        "(帮我|给我).+(学习|复盘|练习|设计学习).+",
+        "(今天|今日).+(学什么|学习|练习).+"
+      ],
+      "negative_keywords": ["报错", "bug", "部署", "发布"],
+      "priority": 3
+    }
+  ]
+}
