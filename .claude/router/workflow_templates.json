@@ -44,6 +44,11 @@
         }
       ],
       "secondary_skills": ["code_assistant", "reviewer", "changelog", "sanitize", "sop"],
+      "guard_check": {
+        "skill": "execution_guard",
+        "mode": "auto",
+        "output": "完成检查：plan_ref + changed_files + artifact 验证"
+      },
       "entry_conditions": {
         "keywords": ["计划", "规划", "方案", "重构", "开发", "实现", "设计", "拆解", "怎么做", "从哪开始"],
         "patterns": ["(出|写|生成|制定|帮我|给).+(计划|规划|方案|步骤|思路|路线)"]
@@ -82,6 +87,11 @@
         }
       ],
       "secondary_skills": ["summarize", "code_assistant", "debug_log"],
+      "guard_check": {
+        "skill": "execution_guard",
+        "mode": "auto",
+        "output": "完成检查：debug_report_ref + root_cause + regression checklist"
+      },
       "entry_conditions": {
         "keywords": ["报错", "bug", "诊断", "排查", "不工作", "异常", "莫名其妙", "不知道为什么"],
         "patterns": ["(为什么|怎么).+(报错|不工作|出问题|不对劲|卡住)", "(帮我|帮我看看|帮我诊断|帮我排查).+(报错|bug|问题|异常)"]
@@ -143,6 +153,11 @@
         }
       ],
       "secondary_skills": ["summarize", "planning", "ask", "task_ledger", "debug"],
+      "guard_check": {
+        "skill": "execution_guard",
+        "mode": "auto",
+        "output": "完成检查：study_plan_ref / practice_log_ref + learning_state 更新"
+      },
       "entry_conditions": {
         "keywords": ["我想学", "学会", "教我", "入门", "系统学习", "学习路线", "每日练习", "今天学什么", "复盘", "本周复盘", "学习复盘", "帮我设计学习", "学习计划"],
         "patterns": [

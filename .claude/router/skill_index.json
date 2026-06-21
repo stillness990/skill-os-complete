@@ -112,6 +112,15 @@
       "intents": [],
       "role": "knowledge_search",
       "is_system": false
+    },
+    "execution_guard": {
+      "name": "execution_guard",
+      "category": "guard",
+      "path": "system/execution_guard",
+      "intents": ["project_delivery", "debug_issue", "learn_topic"],
+      "role": "completion_guard",
+      "is_system": true,
+      "auto_trigger": true
     }
   }
 }

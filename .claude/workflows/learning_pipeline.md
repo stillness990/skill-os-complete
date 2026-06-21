@@ -1,13 +1,13 @@
-# Learning Pipeline（学习工作流）
+# Learning Pipeline（学习工作流）— v4
 
 ## 版本
 
-v2.0.0（Phase 2 正式版，不再为占位）
+v4.0.0（Skill OS v4）
 
 ## 概述
 
-Learning Pipeline 是 skill-os-complete 的**学习工作流标准链路**。
-它定义了一个学习请求如何从"我想学"一路流到每日练习、任务记录和每周复盘。
+Learning Pipeline 是 Skill OS v4 的**学习工作流标准链路**。
+它定义了一个学习请求如何从"我想学"一路流到每日练习、任务记录、每周复盘和学习状态追踪。
 
 ## 标准链路
 
@@ -20,13 +20,17 @@ summarize/briefing（生成学习底稿）
     ↓
 planning/learning（生成阶段学习计划）
     ↓
-teach-plus/explain（建立理解框架）
+teach-plus/explain（建立理解框架 → 推进 topic_new → understanding）
     ↓
-teach-plus/practice（生成每日学习单 + 练习任务）
+teach-plus/practice（生成每日学习单 + 练习任务 → 推进 guided_practice / independent_practice）
     ↓
 task_ledger（学习任务入账，可选但推荐）
     ↓
-teach-plus/review（周复盘 / 阶段复盘）
+learning_state（学习状态更新：阶段、进度、next_action）
+    ↓
+teach-plus/review（周复盘 / 阶段复盘 → 推进 consolidation / review_due / mastered）
+    ↓
+execution_guard（完成检查：study_plan_ref / practice_log_ref / learning_state 更新）
 ```
 
 ## 各阶段详细说明

@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 """
-Claude Code Skill Router Hook — Skill OS v3 (Phase 1)
+Claude Code Skill Router Hook — Skill OS v4
 触发时机: 每次用户发送消息之前（UserPromptSubmit）
 作用:     intent → workflow → primary_skill / secondary_skills
-升级:    从 "单技能最高分命中" 升级为最小 workflow router
+升级:    v4 新增 execution_guard 监督层引用
 兼容:    保留旧版单 skill fallback 机制
 """
 
@@ -98,7 +98,7 @@ if decision["intent"] and decision["workflow"]:
         primary_instruction = f"请先用 Skill 工具加载 `{primary}`，再根据该技能的规范回答。"
 
     injection = (
-        f"\n╔══ SKILL OS v3 ROUTER ═══════════════════╗\n"
+        f"\n╔══ SKILL OS v4 ROUTER ═══════════════════╗\n"
         f"║  Intent:  {decision['intent']:<30}║\n"
         f"║  Workflow: {decision['workflow']:<29}║\n"
         f"║  Primary:  {primary:<30}║\n"

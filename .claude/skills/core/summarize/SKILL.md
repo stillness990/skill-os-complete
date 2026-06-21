@@ -1,13 +1,14 @@
 ---
 name: summarize
-description: "知识整理中台：把任意输入提炼成结构化底稿。支持 basic（快速摘要）和 briefing（深度底稿，供 planning/debug/teach-plus 消费）两种模式。"
+version: "4.0"
+description: "知识整理与 briefing 生成器：把任意输入提炼成结构化底稿。支持 basic（快速摘要）和 briefing（深度底稿，供 planning/debug/teach-plus 消费）两种模式。"
 ---
 
-# Summarize Skill（知识整理中台）
+# Summarize Skill（知识整理与 briefing 生成器）— v4
 
 ## 定位
 
-> summarize 是 Skill OS v3 的"输入结构化中台"。它不只是摘要器——它把任何输入转成标准化的结构化输出，供下游技能（planning/debug/teach-plus）直接消费。
+> summarize 是 Skill OS v4 的"知识整理与 briefing 生成器"。它不只是摘要器——它把任何输入转成标准化的结构化输出，供下游技能（planning/debug/teach-plus）直接消费。它是 Core Skills 层的第一基座。
 
 ## 职责边界
 
@@ -24,6 +25,7 @@ description: "知识整理中台：把任意输入提炼成结构化底稿。支
 - 执行代码修改（那是 `code_assistant` 的事）
 - 追踪任务状态（那是 `task_ledger` 的事）
 - 设计学习练习（那是 `teach-plus` 的事）
+- 检查任务完成质量（那是 `execution_guard` 的事）
 
 ## 两种模式
 
@@ -89,9 +91,9 @@ description: "知识整理中台：把任意输入提炼成结构化底稿。支
 
 | 下游技能 | 消费 summarize 的什么 | 典型流程 |
 |---------|---------------------|---------|
-| `planning` | briefing（项目底稿） | summarize/briefing → planning/project → task_ledger |
+| `planning` | briefing（项目底稿） | summarize/briefing → planning/project → task_ledger → execution_guard |
 | `debug` | briefing（问题背景底稿） | summarize/briefing → debug → code_assistant → debug_archive |
-| `teach-plus` | briefing（学习底稿） | summarize/briefing → planning/learning → teach-plus |
+| `teach-plus` | briefing（学习底稿） | summarize/briefing → planning/learning → teach-plus → learning_state |
 
 ## 行为规则
 

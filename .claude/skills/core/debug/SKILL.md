@@ -1,13 +1,14 @@
 ---
 name: debug
+version: "4.0"
 description: "诊断引擎：按固定诊断流程工作——现象→最小复现→假设→验证→修复→回归检查。不直接给答案，先走诊断流程。与 code_assistant（直接写代码修复）和 debug_archive（留档）各司其职。"
 ---
 
-# Debug Skill（诊断引擎）
+# Debug Skill（诊断引擎）— v4
 
 ## 定位
 
-> debug 是 Skill OS v3 的"诊断引擎"。它不是"修代码的 skill"，而是按固定诊断流程工作的排障工具。
+> debug 是 Skill OS v4 的"诊断引擎"。它不是"修代码的 skill"，而是按固定诊断流程工作的排障工具。它是 Core Skills 层的第三基座。
 
 ## 职责边界
 
@@ -27,6 +28,7 @@ description: "诊断引擎：按固定诊断流程工作——现象→最小复
 - 知识提炼或大段整理（那是 `summarize` 的事）
 - 项目拆解或阶段规划（那是 `planning` 的事）
 - 排查留档（那是 `debug_log` / `debug_archive` 的事）
+- 检查修复是否真正落地（那是 `execution_guard` 的事）
 
 ## 诊断流程
 
@@ -62,6 +64,12 @@ description: "诊断引擎：按固定诊断流程工作——现象→最小复
 - `debug_archive`：系统层归档目录（`.claude/system/debug_archive/`）
 - debug 诊断完成后，建议用户用 `debug_log` 或 `debug_archive` 留档
 - 旧 `debug_log/SKILL.md` 保留兼容
+
+## 与 execution_guard 的关系
+
+- debug 产出的诊断报告 → execution_guard 用来检查 debug 类任务是否满足 done 条件
+- debug 产出的回归检查清单 → execution_guard 用来验证修复是否完整
+- debug 自身不检查任务完成质量 — 那是 execution_guard 的职责
 
 ## 行为规则
 

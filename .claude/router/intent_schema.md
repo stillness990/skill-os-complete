@@ -1,6 +1,6 @@
 # Intent Schema（意图分类协议）
 
-Skill OS v3 的路由器从"关键词→技能"升级为"输入→intent→workflow→skills"。
+Skill OS v4 的路由器：输入→intent→workflow→primary skill / secondary skills → execution_guard。
 
 ## 三类 Intent
 

@@ -2,21 +2,22 @@
 
 ## 版本
 
-v1.1.0（Phase 2 — 新增学习任务 schema）
+v4.0.0（Skill OS v4 — 扩展状态机 + execution_guard 约束）
 
 ## 文件
 
 - `.claude/system/task_ledger/tasks.json` — 任务账本主文件
 - `.claude/system/task_ledger/schema.md` — 本文件（通用 schema）
-- `.claude/system/task_ledger/learning-task-schema.md` — 学习任务专属 schema（Phase 2 新增）
+- `.claude/system/task_ledger/learning-task-schema.md` — 学习任务专属 schema
 - `.claude/system/task_ledger/task-ops.py` — 任务操作脚本
+- `.claude/system/execution_guard/task-state-machine.md` — 正式状态流转规则（v4 新增）
 
 ## 顶层结构
 
 ```json
 {
   "meta": {
-    "version": "1.0.0",
+    "version": "4.0.0",
     "project": "项目名",
     "created": "ISO8601",
     "updated": "ISO8601"
@@ -25,17 +26,36 @@ v1.1.0（Phase 2 — 新增学习任务 schema）
 }
 ```
 
-## Task 对象（最小字段集）
+## Task 对象（v4 完整字段集）
 
 ```json
 {
   "task_id": "tsk_YYYYMMDD_xxx",
   "title": "任务标题",
+  "task_type": "delivery | debug | learning | plan_only",
   "workflow": "delivery_pipeline | debug_pipeline | learning_pipeline",
-  "status": "queued | in_progress | blocked | done | retry",
+  "status": "queued | planning | executing | blocked | retrying | stalled | done | cancelled",
   "source": "planning | debug | teach-plus | manual",
   "next_action": "下一步具体操作",
   "artifacts": ["产出物路径或描述"],
+  "artifact_refs": {
+    "plan_ref": "计划文档路径",
+    "implementation_ref": "实现文档路径",
+    "debug_report_ref": "诊断报告路径",
+    "fix_ref": "修复引用",
+    "study_plan_ref": "学习计划路径",
+    "practice_log_ref": "练习日志路径",
+    "review_log_ref": "复盘日志路径",
+    "changed_files": ["变更文件列表"],
+    "changelog_ref": "变更日志路径",
+    "review_ref": "审查意见路径",
+    "result_summary": "结果摘要"
+  },
+  "guard_status": {
+    "last_check_at": "ISO8601",
+    "stall_detected": false,
+    "warnings": []
+  },
   "created_at": "ISO8601",
   "updated_at": "ISO8601"
 }
@@ -47,33 +67,54 @@ v1.1.0（Phase 2 — 新增学习任务 schema）
 |------|------|------|------|
 | `task_id` | string | ✅ | 唯一标识，格式 `tsk_YYYYMMDD_NNN` |
 | `title` | string | ✅ | 任务标题，一句话 |
+| `task_type` | string | ✅ | 任务类型：delivery / debug / learning / plan_only |
 | `workflow` | string | ✅ | 所属工作流 |
-| `status` | string | ✅ | 当前状态 |
+| `status` | string | ✅ | 当前状态（v4 扩展至 8 个状态） |
 | `source` | string | ✅ | 来源技能 |
 | `next_action` | string | 推荐 | 下一步具体操作 |
-| `artifacts` | string[] | 推荐 | 产出物列表 |
+| `artifacts` | string[] | 推荐 | 产出物列表（简单描述） |
+| `artifact_refs` | object | 推荐 | 结构化 artifact 引用（v4 新增，供 execution_guard 检查） |
+| `guard_status` | object | 推荐 | 监督状态（v4 新增） |
 | `created_at` | string | ✅ | 创建时间（ISO8601） |
 | `updated_at` | string | ✅ | 最后更新时间（ISO8601） |
 
-## 状态集合
+## 状态集合（v4 扩展）
 
-| 状态 | 含义 | 流转 |
-|------|------|------|
-| `queued` | 排队中，待开始 | → `in_progress` |
-| `in_progress` | 进行中 | → `done` / `blocked` |
-| `blocked` | 被阻塞 | → `in_progress`（解除阻塞）/ `retry` |
-| `done` | 已完成 | 终态 |
-| `retry` | 需重试 | → `in_progress` |
+| 状态 | 含义 | 合法来源 | 合法去向 |
+|------|------|---------|---------|
+| `queued` | 排队中，待开始 | （初始状态） | `planning` |
+| `planning` | 规划中 | `queued`, `blocked` | `executing`, `blocked`, `done`（仅 plan_only）, `cancelled` |
+| `executing` | 执行中 | `planning`, `retrying`, `blocked` | `blocked`, `retrying`, `done`, `cancelled` |
+| `blocked` | 被阻塞 | `planning`, `executing` | `planning`, `executing`, `cancelled` |
+| `retrying` | 重试中 | `executing` | `executing`, `blocked`, `cancelled` |
+| `stalled` | 卡住/超时未更新 | `planning`, `executing`, `retrying` | `planning`, `executing`, `cancelled` |
+| `done` | 已完成（终态） | `planning`（仅 plan_only）, `executing` | — |
+| `cancelled` | 已取消（终态） | 任意非终态 | — |
 
-## 状态流转图
+## 状态流转图（v4）
 
 ```
-queued → in_progress → done
-              ↓
-          blocked → in_progress
-              ↓
-           retry → in_progress
+queued → planning → executing → done
+              ↓         ↓
+          blocked ←──────+────→ retrying
+              ↓              ↓
+              +──→ stalled ←─+
+                     ↓
+              planning / executing（恢复后）
+
+任意活动态 → cancelled（用户取消）
 ```
+
+## 非法流转（v4 execution_guard 拦截）
+
+以下流转被视为非法，execution_guard 应拦截：
+- `queued → done`（跳过 planning 和 executing）
+- `planning → done`（非 plan_only 类型任务）
+- `blocked → done`（没有恢复执行）
+- `retrying → done`（没有重新执行过程）
+- `stalled → done`（没有恢复动作）
+- `done → *`（终态不可逆）
+- `cancelled → *`（终态不可逆）
 
 ## 来源技能写入方式
 

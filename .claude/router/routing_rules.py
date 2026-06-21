@@ -1,7 +1,8 @@
 """
-Skill OS v3 — Routing Rules Module
+Skill OS v4 — Routing Rules Module
 
 从 "关键词→技能" 升级为 "输入→intent→workflow→primary_skill / secondary_skills"
+v4 新增: execution_guard 监督层引用
 """
 
 import json
