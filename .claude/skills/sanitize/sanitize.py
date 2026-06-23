@@ -151,6 +151,58 @@ ALWAYS_EXCLUDE = {
 }
 
 # ═══════════════════════════════════════════════════════════
+# v2: 运行态业务数据识别
+# ───────────────────────────────────────────────────────────
+# 这些数据不含密钥,正则扫不出来,但泄露隐私/真实运行记录。
+# 处理方式:写进 .gitignore 整体排除,而非正则替换。
+# (glob 相对 fnmatch 路径片段匹配)
+# ═══════════════════════════════════════════════════════════
+RUNTIME_DATA_GLOBS = [
+    # v5 状态层运行数据
+    ".claude/state/*.json",
+    ".claude/state/telemetry/*",
+    ".claude/state/checkpoint/*.json",
+    # 任务台账 / 学习状态(真实业务数据,非模板)
+    "**/task_ledger/tasks.json",
+    "**/learning_state/state.json",
+    # 知识产出 / 学习数据
+    "**/knowledge/**",
+    "practice/*",
+    # 通用运行日志
+    "*.jsonl",
+    "**/execution-timeline.jsonl",
+    "**/last-run-summary.json",
+    "**/runtime-status.json",
+]
+
+# 这些是模板/占位,应保留(不算运行数据)
+RUNTIME_DATA_KEEP = {
+    ".gitkeep", "README.md", "schema.md", "schema.json",
+}
+
+# 推荐写入 .gitignore 的运行态排除规则
+GITIGNORE_RUNTIME_BLOCK = """\
+# ── v5 运行态数据(脱敏:不入库,install 为新用户生成模板) ──
+.claude/state/*.json
+.claude/state/telemetry/
+.claude/state/checkpoint/*
+!.claude/state/checkpoint/.gitkeep
+!.claude/state/README.md
+# 任务台账 / 学习状态(保留空模板,排除真实数据可改为 git rm --cached)
+# 知识产出 / 学习数据(排除内容但保留目录占位 .gitkeep)
+# 注:git 无法用 ! 重新包含被忽略目录下的文件,故只忽略非 .gitkeep 文件
+**/knowledge/**/*
+!**/knowledge/**/
+!**/knowledge/**/.gitkeep
+practice/
+# 通用运行日志 / 报告 / 备份
+tests/reports/
+*.jsonl
+*.bak
+__pycache__/
+"""
+
+# ═══════════════════════════════════════════════════════════
 # 数据结构
 # ═══════════════════════════════════════════════════════════
 
@@ -170,10 +222,61 @@ class ScanResult:
     matches: list[Match] = field(default_factory=list)
     files_scanned: int = 0
     files_modified: int = 0
+    runtime_hits: list[str] = field(default_factory=list)  # v2: 运行态数据命中
 
     @property
     def match_count(self) -> int:
         return len(self.matches)
+
+
+# ═══════════════════════════════════════════════════════════
+# v2: 运行态数据检测(.gitignore 隔离,非正则替换)
+# ═══════════════════════════════════════════════════════════
+
+
+def _match_glob(rel_path: str, glob: str) -> bool:
+    """简易 glob 匹配,支持 ** 跨目录。"""
+    import fnmatch
+    if "**" in glob:
+        # ** 匹配任意层级:转为正则
+        pat = re.escape(glob).replace(r"\*\*/", "(.*/)?").replace(r"\*\*", ".*").replace(r"\*", "[^/]*")
+        return re.fullmatch(pat, rel_path) is not None
+    return fnmatch.fnmatch(rel_path, glob)
+
+
+def scan_runtime_data(root: Path) -> list[str]:
+    """扫描运行态业务数据(不含密钥但泄露隐私的文件)。
+
+    返回命中的相对路径列表(应被 .gitignore 排除或清理)。
+    保留项(.gitkeep/README/schema)不计入。
+    """
+    hits = []
+    for fp in root.rglob("*"):
+        if not fp.is_file():
+            continue
+        parts = set(fp.parts)
+        if parts & ALWAYS_EXCLUDE:
+            continue
+        if fp.name in RUNTIME_DATA_KEEP:
+            continue
+        rel = str(fp.relative_to(root))
+        for glob in RUNTIME_DATA_GLOBS:
+            if _match_glob(rel, glob):
+                hits.append(rel)
+                break
+    return sorted(set(hits))
+
+
+def ensure_gitignore_runtime(project_dir: Path, dry_run: bool = False) -> bool:
+    """确保 .gitignore 含运行态数据排除规则。返回是否有改动。"""
+    gi = project_dir / ".gitignore"
+    existing = gi.read_text(encoding="utf-8") if gi.exists() else ""
+    if "v5 运行态数据" in existing or ".claude/state/telemetry/" in existing:
+        return False  # 已含运行态排除规则
+    if not dry_run:
+        sep = "" if existing.endswith("\n") or not existing else "\n"
+        gi.write_text(existing + sep + "\n" + GITIGNORE_RUNTIME_BLOCK, encoding="utf-8")
+    return True
 
 
 # ═══════════════════════════════════════════════════════════
@@ -347,7 +450,7 @@ def apply_replacements(result: ScanResult, dry_run: bool = False) -> int:
 
 def print_report(result: ScanResult, verbose: bool = False) -> None:
     """打印扫描/替换报告。"""
-    if result.match_count == 0:
+    if result.match_count == 0 and not result.runtime_hits:
         print("✓ 未发现敏感信息。")
         return
 
@@ -380,6 +483,16 @@ def print_report(result: ScanResult, verbose: bool = False) -> None:
         print()
 
     print(f"  共 {len(by_type)} 类敏感信息，{result.match_count} 处匹配。\n")
+
+    # v2: 运行态数据报告
+    if result.runtime_hits:
+        print(f"  [运行态业务数据] ({len(result.runtime_hits)} 个文件 — 应 .gitignore 排除,不入库)")
+        show = result.runtime_hits if verbose else result.runtime_hits[:5]
+        for h in show:
+            print(f"    • {h}")
+        if not verbose and len(result.runtime_hits) > 5:
+            print(f"    ... 还有 {len(result.runtime_hits) - 5} 个")
+        print()
 
 
 # ═══════════════════════════════════════════════════════════
@@ -433,7 +546,68 @@ def copy_project(source: Path, dest: Path, force: bool = False) -> bool:
     return True
 
 
+def preflight_check(project_dir: Path, branch: str = "main") -> dict:
+    """v2 发布前置检查:远程分叉 + tag 撞号。
+
+    返回 dict: {remote_ahead, diverged, existing_tags, warnings[]}
+    仅报告,不阻断;调用方据此决策。
+    """
+    import subprocess
+
+    def git(*args: str) -> subprocess.CompletedProcess:
+        return subprocess.run(["git"] + list(args), cwd=str(project_dir),
+                              capture_output=True, text=True)
+
+    info = {"remote_ahead": 0, "diverged": False, "existing_tags": [], "warnings": []}
+    if not (project_dir / ".git").exists():
+        return info  # 全新仓库,无需检查
+
+    git("fetch", "origin")
+    # 远程是否领先
+    r = git("rev-list", "--count", f"HEAD..origin/{branch}")
+    if r.returncode == 0 and r.stdout.strip().isdigit():
+        info["remote_ahead"] = int(r.stdout.strip())
+    # 是否分叉(本地也有远程没的提交)
+    r2 = git("rev-list", "--count", f"origin/{branch}..HEAD")
+    local_ahead = int(r2.stdout.strip()) if r2.returncode == 0 and r2.stdout.strip().isdigit() else 0
+    info["diverged"] = info["remote_ahead"] > 0 and local_ahead > 0
+    # 现有 tag
+    rt = git("ls-remote", "--tags", "origin")
+    if rt.returncode == 0:
+        import re as _re
+        info["existing_tags"] = sorted(set(_re.findall(r"refs/tags/(v[0-9.]+)", rt.stdout)))
+    # 警告
+    if info["remote_ahead"] > 0:
+        info["warnings"].append(f"远程 {branch} 领先本地 {info['remote_ahead']} 个提交")
+    if info["diverged"]:
+        info["warnings"].append("⚠️ 本地与远程已分叉,force 推送会重写远程历史")
+    return info
+
+
+def git_push_retry(project_dir: Path, args: list[str], retries: int = 3) -> bool:
+    """v2 带重试的 git push(应对 gnutls_handshake 等网络拖动)。"""
+    import subprocess, time
+    for i in range(1, retries + 1):
+        r = subprocess.run(["git", "push"] + args, cwd=str(project_dir),
+                           capture_output=True, text=True)
+        out = (r.stdout + r.stderr)
+        if r.returncode == 0:
+            return True
+        if any(k in out for k in ("gnutls_handshake", "TLS", "Could not resolve", "timed out", "Connection reset")):
+            print(f"  网络拖动(尝试 {i}/{retries}),3秒后重试...")
+            time.sleep(3)
+            continue
+        print(f"  ✗ push 失败:{out.strip()[:200]}")
+        return False
+    print("  ✗ push 多次重试仍失败")
+    return False
+
+
 def init_and_push(project_dir: Path, remote_url: str, branch: str = "main", dry_run: bool = False) -> bool:
+    """在 project_dir 中初始化 git、提交并推送。
+
+    返回 True 表示成功。
+    """
     """在 project_dir 中初始化 git、提交并推送。
 
     返回 True 表示成功。
@@ -482,12 +656,8 @@ def init_and_push(project_dir: Path, remote_url: str, branch: str = "main", dry_
         print("  [dry-run] 跳过推送。")
         return True
 
-    # 推送
-    r = git("push", "--force", "origin", branch)
-    if r.returncode != 0:
-        print(f"  ✗ 推送失败：{r.stderr.strip()}")
-        if r.stdout.strip():
-            print(f"  stdout: {r.stdout.strip()}")
+    # 推送(v2: 带网络重试)
+    if not git_push_retry(project_dir, ["--force", "origin", branch]):
         return False
     print(f"  ✓ 已推送到 {remote_url} ({branch})")
     return True
@@ -525,10 +695,22 @@ def publish_project(
     exclude_dirs = exclude or set()
     result = scan_directory(dest, patterns, exclude_dirs)
     apply_replacements(result, dry_run=False)
+    # v2: 运行态数据检测 + .gitignore 隔离
+    result.runtime_hits = scan_runtime_data(dest)
+    if result.runtime_hits:
+        added = ensure_gitignore_runtime(dest, dry_run=False)
+        print(f"  ⚠️ 检测到 {len(result.runtime_hits)} 个运行态数据文件"
+              + (",已写入 .gitignore 排除" if added else ",.gitignore 已含排除规则"))
     print_report(result, verbose=verbose)
 
     # ── Step 3: Git 推送 ──
     print("[3/3] Git 推送...")
+    # v2: 发布前置检查(远程分叉 + tag 撞号)
+    pf = preflight_check(dest, branch=branch)
+    for w in pf["warnings"]:
+        print(f"  ⚠️ {w}")
+    if pf["existing_tags"]:
+        print(f"  ℹ 远程现有 tag: {', '.join(pf['existing_tags'])}")
     if not init_and_push(dest, remote, branch=branch, dry_run=no_push):
         return 1
 
@@ -622,8 +804,14 @@ def main() -> int:
     print(f"→ 模式：{'仅报告 (dry-run)' if args.command == 'scan' else '执行替换'}")
 
     result = scan_directory(target, patterns, exclude_dirs)
+    # v2: 运行态数据检测(scan/apply 都报告;apply 可选写 .gitignore)
+    result.runtime_hits = scan_runtime_data(target)
     if args.command == "apply":
         apply_replacements(result, dry_run=False)
+        if result.runtime_hits:
+            added = ensure_gitignore_runtime(target, dry_run=False)
+            print(f"→ 运行态数据:{len(result.runtime_hits)} 个文件"
+                  + (",已写入 .gitignore" if added else ",.gitignore 已含规则"))
     else:
         apply_replacements(result, dry_run=True)
 
