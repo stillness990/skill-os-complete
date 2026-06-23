@@ -213,6 +213,20 @@ bash /path/to/skill-os-complete/install.sh
 
 安装完成后自动：复制 `.claude/` → 部署编排模块 → 初始化 `state/` → 运行路由测试
 
+### 语义模型依赖（可选但推荐）
+
+L1 智能路由的 **SemanticRouter** 依赖本地 Ollama embedding 模型。**未安装时系统自动降级为 rule_only（仅规则路由），功能不受影响但中文语义召回会变弱。**
+
+```bash
+# 安装 Ollama（如未安装）：https://ollama.com
+# 拉取推荐的中文 embedding 模型（默认值）
+ollama pull quentinz/bge-large-zh-v1.5
+```
+
+- **默认模型**：`quentinz/bge-large-zh-v1.5`（1024 维，中文区分力强）
+- 旧版 `nomic-embed-text` 仍兼容，但中文短文本区分力较弱，建议用 bge
+- 模型名可在 `orchestration/embedding_provider.py` 的 `DEFAULT_EMBED_MODEL` 调整
+
 ---
 
 ## 项目结构（v5.0.0）

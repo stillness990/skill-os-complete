@@ -446,3 +446,19 @@ echo "  脱敏脚本位置：.claude/skills/sanitize/sanitize.py（v2: scan/appl
 echo "  卸载脚本位置：skill-os-uninstall.sh"
 echo "  升级脚本位置：skill-os-deploy.sh"
 echo ""
+
+# ── 可选：语义模型依赖检查（仅检测+提示，不强制拉取）──
+EMBED_MODEL="quentinz/bge-large-zh-v1.5"
+echo "  ── 语义模型依赖（可选） ──"
+if command -v ollama >/dev/null 2>&1; then
+  if ollama list 2>/dev/null | grep -q "bge-large-zh"; then
+    echo "    ✓ 已检测到 embedding 模型 ($EMBED_MODEL)，SemanticRouter 可用"
+  else
+    echo "    ⚠ 未检测到推荐的 embedding 模型，语义路由将降级为 rule_only（功能不受影响）"
+    echo "      要启用完整语义检索，请运行：ollama pull $EMBED_MODEL"
+  fi
+else
+  echo "    ⚠ 未检测到 Ollama，语义路由将降级为 rule_only（功能不受影响）"
+  echo "      要启用完整语义检索：安装 Ollama (https://ollama.com) 后运行：ollama pull $EMBED_MODEL"
+fi
+echo ""
