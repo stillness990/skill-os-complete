@@ -27,7 +27,7 @@ from urllib.error import URLError, HTTPError
 # ── 默认配置 ──────────────────────────────────────────
 
 DEFAULT_OLLAMA_HOST = "http://localhost:11434"
-DEFAULT_EMBED_MODEL = "nomic-embed-text:latest"
+DEFAULT_EMBED_MODEL = "quentinz/bge-large-zh-v1.5:latest"
 HEALTH_TIMEOUT = 5   # seconds
 EMBED_TIMEOUT = 10   # seconds
 

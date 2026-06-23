@@ -146,14 +146,24 @@ class SemanticRouter:
         # 获取每个 card 的 embedding
         self._card_embeddings = []
         success_count = 0
+        _emb_dim = None  # 跟随实际模型维度（nomic=768 / bge-large-zh=1024 等）
         for text in self._card_texts:
             emb = self._provider.get_embedding(text)
             if emb:
+                if _emb_dim is None:
+                    _emb_dim = len(emb)
                 self._card_embeddings.append(emb)
                 success_count += 1
             else:
-                # Fallback: 零向量 (nomic-embed-text dim=768)
-                self._card_embeddings.append([0.0] * 768)
+                # Fallback: 零向量（维度跟随实际模型，未知时先置 None 稍后补齐）
+                self._card_embeddings.append(None)
+
+        # 统一将 None fallback 补为正确维度的零向量
+        if _emb_dim is not None:
+            self._card_embeddings = [
+                e if e is not None else [0.0] * _emb_dim
+                for e in self._card_embeddings
+            ]
 
         self._index_built = success_count > 0
         return self._index_built
