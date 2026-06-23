@@ -101,7 +101,7 @@ role: system
 **匹配条件**：
 - 用户明确要求 "SOP" / "操作手册" / "标准流程" / "runbook"
 - 内容是步骤化操作流程（部署、备份、恢复、巡检、发布等）
-- 上游 skill 是旧 `sop` 技能（已删除，功能合并至此）
+- 上游 skill 是旧 `sop` 技能（已标记为 legacy compatibility only，功能合并至此）
 
 **Section 权重**：
 - Execution Steps 为核心（4-8 步，每步含操作+预期+分支）
@@ -117,7 +117,7 @@ role: system
 - 用户描述了一个故障/报错/异常
 - 上游 skill 是 `debug`（诊断完成后自动触发）
 - 用户明确要求 "故障排查" / "排查记录" / "留档"
-- 上游 skill 是旧 `debug_log` 技能（已删除，功能合并至此）
+- 上游 skill 是旧 `debug_log` 技能（已标记为 legacy compatibility only，功能合并至此）
 
 **Section 权重**：
 - Core Insight 必须包含根因
