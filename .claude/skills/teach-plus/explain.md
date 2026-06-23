@@ -80,3 +80,4 @@
 - **控制深度**：explain 的目标是"建立框架"，不是"穷尽细节"；细节留给 practice
 - **输出后引导**：每次 explain 输出后，明确告诉用户下一步是进入 practice 还是补充 briefing
 - **语言适配**：根据用户水平调整解释深度；零基础多用类比，有基础多用结构图
+- **知识沉淀**（v5 强制）：explain 输出后，将"学习对象理解框架"交给 `knowledge-asset`（knowledge-note 模式）沉淀到 `knowledge/knowledge-notes/`

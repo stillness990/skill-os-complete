@@ -145,13 +145,13 @@ ln -s $(pwd)/knowledge-asset-skills ~/.claude/skills/knowledge-asset
 如果你已经有自己的技能目录，例如：
 
 ```text
-/home/ww/skills/
+~/skills/
 ```
 
 可以直接放置为：
 
 ```text
-/home/ww/skills/knowledge-asset/
+~/skills/knowledge-asset/
 ```
 
 并根据你的 Claude Code 配置加载该目录。

@@ -10,14 +10,14 @@ P3-4 要求:
 """
 
 import sys
-sys.path.insert(0, "/path/to/skill-os-complete")
-sys.path.insert(0, "/path/to/skill-os-complete/routing_assets")
-sys.path.insert(0, "/path/to/skill-os-complete/orchestration")
-sys.path.insert(0, "/path/to/skill-os-complete/ledger")
+import os
+_REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+if _REPO not in sys.path:
+    sys.path.insert(0, _REPO)
 
-from orchestration_types import Workflow, Intent, TaskStatus
-from prompt_normalizer import PromptNormalizer
-from rule_router import RuleRouter
+from orchestration.orchestration_types import Workflow, Intent, TaskStatus
+from orchestration.prompt_normalizer import PromptNormalizer
+from orchestration.rule_router import RuleRouter
 
 
 def _route(text: str):
@@ -161,7 +161,7 @@ def test_route_examples():
     """Test all labeled examples from route_examples.json"""
     import json
     print("Route examples test:")
-    examples_path = "/path/to/skill-os-complete/routing_assets/route_examples.json"
+    examples_path = os.path.join(_REPO, "routing_assets", "route_examples.json")
     with open(examples_path, "r") as f:
         data = json.load(f)
 

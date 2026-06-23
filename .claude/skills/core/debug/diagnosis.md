@@ -36,6 +36,12 @@ Step 7：给出修复建议
 Step 8：给出回归检查项
     - 至少 2 个检查项
     - 必须包含"不要引入新问题"的边界确认
+    ↓
+Step 9：知识沉淀（v5 强制）
+    - 将诊断报告交给 knowledge-asset（troubleshooting 模式）
+    - 包含：现象 + 根因 + 诊断步骤 + 修复方案 + 回归清单
+    - 沉淀路径：knowledge/troubleshooting/{YYYY-MM-DD}_{title}.md
+    - 更新 state/current-task.json
 ```
 
 ## 关键原则
@@ -47,6 +53,7 @@ Step 8：给出回归检查项
 5. **现象描述模糊时，先问一个问题澄清** — 一次只问一个
 6. **修复建议对应假设** — 每个假设都有对应的修复方案
 7. **必须有回归检查项** — 修复后验证，防止引入新问题
+8. **诊断完成后必须通过 knowledge-asset 沉淀** — 不让排查经验流失（v5 强制）
 
 ## 常见诊断模式
 
@@ -68,3 +75,11 @@ Step 8：给出回归检查项
 ## 输出
 
 诊断结果按 `debug-protocol.md` 格式输出（见 `.claude/protocols/debug-protocol.md`）。
+
+## v5：knowledge-asset 沉淀（取代 debug_log）
+
+诊断完成后，**必须**将结构化诊断报告交给 `knowledge-asset`（troubleshooting 模式）沉淀：
+
+- 模板：`troubleshooting`
+- 沉淀路径：`.claude/skills/knowledge-asset/knowledge/troubleshooting/{YYYY-MM-DD}_{title}.md`
+- 旧 `debug_log` skill 已删除（v5），功能合并入 `knowledge-asset`

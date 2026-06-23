@@ -1,4 +1,6 @@
-# Knowledge（知识库）
+# Knowledge（知识库）— v4 legacy
+
+> **v5 注意**：知识产出已统一通过 L0 Knowledge Bus（`.claude/skills/knowledge-asset/knowledge/`）沉淀。状态管理已迁移至 `.claude/state/`。本目录保留为 v4 参考。
 
 系统层知识存储目录。Phase 2 正式启用。
 

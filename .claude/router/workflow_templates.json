@@ -43,7 +43,7 @@
           "output": "变更日志"
         }
       ],
-      "secondary_skills": ["code_assistant", "reviewer", "changelog", "sanitize", "sop"],
+      "secondary_skills": ["code_assistant", "reviewer", "changelog", "sanitize", "knowledge-asset"],
       "guard_check": {
         "skill": "execution_guard",
         "mode": "auto",
@@ -81,12 +81,12 @@
         },
         {
           "phase": "archive",
-          "skill": "debug_log",
-          "mode": "on_demand",
-          "output": "排查记录归档"
+          "skill": "knowledge-asset",
+          "mode": "troubleshooting",
+          "output": "排查记录结构化沉淀"
         }
       ],
-      "secondary_skills": ["summarize", "code_assistant", "debug_log"],
+      "secondary_skills": ["summarize", "code_assistant", "knowledge-asset"],
       "guard_check": {
         "skill": "execution_guard",
         "mode": "auto",

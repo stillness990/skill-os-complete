@@ -1,0 +1,3 @@
+# Checkpoint 目录 — 状态快照存储
+# 文件名格式: ckpt_YYYYMMDD_HHMMSS.json
+# 由 execution_guard 和 workflow 推进逻辑自动写入

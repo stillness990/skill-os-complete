@@ -52,4 +52,4 @@ execution_guard（完成检查：artifact 验证 + 状态流转合法性）
 ## 辅助技能
 
 - `sanitize`：发布前脱敏
-- `sop`：生成操作手册
+- `knowledge-asset`（sop 模式）：生成标准操作流程文档

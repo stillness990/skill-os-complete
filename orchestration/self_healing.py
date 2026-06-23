@@ -23,7 +23,7 @@ from dataclasses import dataclass, field
 from datetime import datetime, timezone
 from typing import Optional
 
-from orchestration_types import FailureType, TaskStatus, SafeModeStatus
+from .orchestration_types import FailureType, TaskStatus, SafeModeStatus
 
 
 def _now_iso() -> str:

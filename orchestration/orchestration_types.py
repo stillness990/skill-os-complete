@@ -30,36 +30,45 @@ class Workflow(str, Enum):
 
 
 WORKFLOW_STAGES = {
+    # ── Delivery Pipeline (v5 closure) ──
     Workflow.DELIVERY: [
-        {"phase": "understand", "skill": "summarize", "mode": "briefing", "required": True},
-        {"phase": "plan", "skill": "planning", "mode": "project", "required": True},
-        {"phase": "track", "skill": "task_ledger", "mode": "auto", "required": True},
-        {"phase": "execute", "skill": "code_assistant", "mode": "on_demand", "required": False},
-        {"phase": "review", "skill": "reviewer", "mode": "on_demand", "required": False},
-        {"phase": "release", "skill": "changelog", "mode": "on_demand", "required": False},
+        {"phase": "understand",  "skill": "summarize",      "component_type": "skill",  "mode": "briefing",     "required": True},
+        {"phase": "plan",        "skill": "planning",        "component_type": "skill",  "mode": "project",      "required": True},
+        {"phase": "track",       "skill": "task_ledger",     "component_type": "ledger", "mode": "auto",         "required": True},
+        {"phase": "execute",     "skill": "code_assistant",  "component_type": "skill",  "mode": "on_demand",    "required": False},
+        {"phase": "review",      "skill": "reviewer",        "component_type": "skill",  "mode": "on_demand",    "required": False},
+        {"phase": "release",     "skill": "changelog",       "component_type": "skill",  "mode": "on_demand",    "required": False},
+        {"phase": "archive",     "skill": "knowledge-asset", "component_type": "skill",  "mode": "sop",          "required": False},
+        {"phase": "guard",       "skill": "execution_guard", "component_type": "system", "mode": "auto",         "required": True},
     ],
+    # ── Debug Pipeline (v5 closure) ──
     Workflow.DEBUG: [
-        {"phase": "summarize_optional", "skill": "summarize", "mode": "briefing", "required": False},
-        {"phase": "diagnose", "skill": "debug", "mode": "full", "required": True},
-        {"phase": "fix", "skill": "code_assistant", "mode": "on_demand", "required": False},
-        {"phase": "archive", "skill": "debug_log", "mode": "on_demand", "required": False},
+        {"phase": "summarize_optional", "skill": "summarize",      "component_type": "skill",  "mode": "briefing",        "required": False},
+        {"phase": "diagnose",           "skill": "debug",           "component_type": "skill",  "mode": "full",            "required": True},
+        {"phase": "fix",                "skill": "code_assistant",  "component_type": "skill",  "mode": "on_demand",       "required": False},
+        {"phase": "archive",            "skill": "knowledge-asset", "component_type": "skill",  "mode": "troubleshooting", "required": True},
+        {"phase": "guard",              "skill": "execution_guard", "component_type": "system", "mode": "auto",            "required": True},
     ],
+    # ── Learning Pipeline (v5 closure) ──
     Workflow.LEARNING: [
-        {"phase": "clarify", "skill": "ask", "mode": "on_demand", "required": False},
-        {"phase": "summarize", "skill": "summarize", "mode": "briefing", "required": True},
-        {"phase": "plan", "skill": "planning", "mode": "learning", "required": True},
-        {"phase": "explain", "skill": "teach-plus", "mode": "explain", "required": False},
-        {"phase": "practice", "skill": "teach-plus", "mode": "practice", "required": False},
-        {"phase": "track", "skill": "task_ledger", "mode": "auto", "required": False},
-        {"phase": "review", "skill": "teach-plus", "mode": "review", "required": False},
+        {"phase": "clarify",        "skill": "ask",             "component_type": "skill",  "mode": "on_demand",      "required": False},
+        {"phase": "summarize",      "skill": "summarize",       "component_type": "skill",  "mode": "briefing",       "required": True},
+        {"phase": "plan",           "skill": "planning",         "component_type": "skill",  "mode": "learning",       "required": True},
+        {"phase": "explain",        "skill": "teach-plus",       "component_type": "skill",  "mode": "explain",        "required": False},
+        {"phase": "practice",       "skill": "teach-plus",       "component_type": "skill",  "mode": "practice",       "required": False},
+        {"phase": "track",          "skill": "task_ledger",      "component_type": "ledger", "mode": "auto",           "required": False},
+        {"phase": "review",         "skill": "teach-plus",       "component_type": "skill",  "mode": "review",         "required": False},
+        {"phase": "learning_state", "skill": "learning_state",   "component_type": "state",  "mode": "auto",           "required": False},
+        {"phase": "capture",        "skill": "knowledge-asset",  "component_type": "skill",  "mode": "knowledge-note", "required": False},
+        {"phase": "guard",          "skill": "execution_guard",  "component_type": "system", "mode": "auto",           "required": True},
     ],
 }
 
-# Workflow 最少 required stages
+# Workflow 最少 required stages (v5 closure)
 WORKFLOW_MINIMUM_REQUIRED = {
-    Workflow.DELIVERY: ["understand", "plan"],
-    Workflow.DEBUG: ["diagnose"],
-    Workflow.LEARNING: ["summarize", "plan"],
+    Workflow.DELIVERY: ["understand", "plan", "guard"],
+    Workflow.DEBUG: ["diagnose", "archive", "guard"],
+    Workflow.LEARNING: ["summarize", "plan", "guard"],
 }
 
 

@@ -70,6 +70,13 @@ task_ledger（plan 中的行动项写入 tasks.json）
 - planning 定义的验收标准 → execution_guard 用来检查 done 状态是否有对应 artifact
 - planning 自身不执行检查 — 那是 execution_guard 的职责
 
+## 与 knowledge-asset 的关系（v5 新增）
+
+- planning 产出计划后，**可选**将计划交给 `knowledge-asset`（project-plan 模式）沉淀
+- 触发条件：用户确认计划后，或计划已进入执行阶段
+- 沉淀路径：`.claude/skills/knowledge-asset/knowledge/project-plans/{YYYY-MM-DD}_{title}.md`
+- 如果计划仅用于临时参考，可跳过沉淀
+
 ## 触发场景
 
 关键词：`计划`、`规划`、`方案`、`怎么搞`、`roadmap`、`学习路线`、`拆解`、`阶段`、`steps`、`怎么做`、`从哪开始`

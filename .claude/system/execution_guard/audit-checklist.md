@@ -1,8 +1,8 @@
-# Audit Checklist（验收清单）— v4
+# Audit Checklist（验收清单）— v5
 
 ## 版本
 
-v4.0.0（Skill OS v4 execution_guard）
+v5.0.0（Skill OS v5 execution_guard — 新增 L0/L4 闭环检查项）
 
 ## 概述
 
@@ -78,6 +78,36 @@ v4.0.0（Skill OS v4 execution_guard）
 
 ---
 
+## 按 v5 新增的分项验收
+
+### B5. knowledge-asset 沉淀检查（v5 Rule 6 — L0 Knowledge Bus 闭环）
+
+- [ ] debug 任务：`knowledge_asset_ref` 指向有效的 troubleshooting 文件
+- [ ] learning 任务：`knowledge_asset_ref` 指向有效的 knowledge-note 文件
+- [ ] delivery（施工类）任务：`knowledge_asset_ref` 指向有效的 project-plan 文件
+- [ ] `knowledge_asset_ref` 指向的文件实际存在且非空
+- [ ] 文件路径在 `.claude/skills/knowledge-asset/knowledge/` 下
+- [ ] 没有 skill 直接写入 `knowledge/*` 绕过 knowledge-asset
+
+### B6. state/ 更新检查（v5 Rule 7 — L4 State 闭环）
+
+- [ ] `state/current-task.json` 中任务 status 已更新为 done
+- [ ] `state/execution-state.json` 中 pipeline_progress 已推进
+- [ ] learning 任务：`state/learning-state.json` 中对应 topic 已更新
+- [ ] `state/task-history.json` 中已完成归档
+- [ ] state/ 文件存在且 JSON 格式有效
+
+### B7. 6 层闭环完整性（v5 全局检查）
+
+- [ ] L1 Router：任务由正确的 intent→workflow→skill 路由
+- [ ] L2 Core：核心技能输出符合对应协议
+- [ ] L3 Workflow：pipeline 各 stage 按序执行
+- [ ] **L0 Knowledge Bus**：长期知识通过 knowledge-asset 结构化沉淀 ✅
+- [ ] **L4 State**：状态文件同步更新 ✅
+- [ ] **L5 Guard**：本 checklist 全部通过 ✅
+
+---
+
 ## 防"假完成"特别检查
 
 ### C1. "口头完成"检测
@@ -95,6 +125,7 @@ v4.0.0（Skill OS v4 execution_guard）
 ### C3. "文件不存在"检测
 
 - [ ] artifact_refs 中引用的文件路径确实存在（如可验证）
+- [ ] `knowledge_asset_ref` 指向的文件存在且可读（v5 新增）
 - [ ] 至少引用的路径格式合理（不是占位符）
 
 ### C4. "残留警告"检测

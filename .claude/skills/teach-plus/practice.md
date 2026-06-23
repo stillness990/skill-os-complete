@@ -139,3 +139,4 @@ practice 产出的每日学习单应写入 task_ledger：
 - **写入 ledger**：每日学习单生成后，将核心任务写入 task_ledger
 - **保存 daily 文件**：将完整学习单保存到 `practice/daily/YYYY-MM-DD.md`
 - **续学检测**：如果用户说"继续学习"，先做断档检测（检查 practice/daily/ 最近文件日期）
+- **知识沉淀**（v5 强制）：每日学习单生成后，将结构化学习内容交给 `knowledge-asset`（knowledge-note 模式）沉淀到 `knowledge/knowledge-notes/`

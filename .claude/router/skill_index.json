@@ -87,7 +87,20 @@
       "path": "skills/sop",
       "intents": ["project_delivery", "debug_issue"],
       "role": "documenter",
-      "is_system": false
+      "is_system": false,
+      "status": "migrated",
+      "migrated_to": "knowledge-asset",
+      "migrated_mode": "sop"
+    },
+    "knowledge-asset": {
+      "name": "knowledge-asset",
+      "category": "system",
+      "path": "skills/knowledge-asset",
+      "intents": ["project_delivery", "debug_issue", "learn_topic"],
+      "role": "knowledge_bus",
+      "layer": "L0",
+      "is_system": true,
+      "modes": ["sop", "troubleshooting", "architecture", "knowledge-note", "project-plan"]
     },
     "teach-plus": {
       "name": "teach-plus",
@@ -103,7 +116,10 @@
       "path": "skills/debug_log",
       "intents": ["debug_issue"],
       "role": "archiver",
-      "is_system": false
+      "is_system": false,
+      "status": "migrated",
+      "migrated_to": "knowledge-asset",
+      "migrated_mode": "troubleshooting"
     },
     "dify_kb_search": {
       "name": "dify_kb_search",

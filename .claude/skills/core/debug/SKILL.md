@@ -27,7 +27,7 @@ description: "诊断引擎：按固定诊断流程工作——现象→最小复
 - 直接写代码修复（那是 `code_assistant` 的事）
 - 知识提炼或大段整理（那是 `summarize` 的事）
 - 项目拆解或阶段规划（那是 `planning` 的事）
-- 排查留档（那是 `debug_log` / `debug_archive` 的事）
+- 排查留档（那是 `knowledge-asset`（troubleshooting 模式）的事）
 - 检查修复是否真正落地（那是 `execution_guard` 的事）
 
 ## 诊断流程
@@ -58,12 +58,12 @@ description: "诊断引擎：按固定诊断流程工作——现象→最小复
 
 **交接方式**：debug 诊断完成后，在"修复建议"中标注需交给 `code_assistant` 的改动点（文件 + 改动内容）。
 
-## 与 debug_log / debug_archive 的关系
+## 与 knowledge-asset 的关系
 
-- `debug_log`：每次 debug 结束后生成结构化记录文件
-- `debug_archive`：系统层归档目录（`.claude/system/debug_archive/`）
-- debug 诊断完成后，建议用户用 `debug_log` 或 `debug_archive` 留档
-- 旧 `debug_log/SKILL.md` 保留兼容
+- `knowledge-asset`（troubleshooting 模式）：每次 debug 结束后将诊断报告结构化沉淀到知识库
+- 知识沉淀路径：`.claude/skills/knowledge-asset/knowledge/troubleshooting/`
+- debug 诊断完成后，**必须**将诊断结果交给 `knowledge-asset` 沉淀（取代旧 `debug_log`）
+- 旧 `debug_log/SKILL.md` 已删除，功能合并入 `knowledge-asset`
 
 ## 与 execution_guard 的关系
 
@@ -94,4 +94,4 @@ debug/
 
 - 旧 `debug/SKILL.md` 保留在 `.claude/skills/debug/SKILL.md`
 - 旧 debug 已具备 9 步诊断流程，v3 将其标准化为 8 步 + 协议文件
-- 旧 debug_log 保留，新增 `system/debug_archive/` 作为系统层归档
+- 旧 `debug_log` 已删除（v5），功能合并入 `knowledge-asset` 的 `troubleshooting` 模式

@@ -21,22 +21,22 @@ from dataclasses import dataclass, field
 from typing import Optional
 
 # Phase 2 types
-from orchestration_types import (
+from .orchestration_types import (
     Intent,
     Workflow,
     ExecutionStatus,
     SafeModeStatus,
     RouteSource,
 )
-from route_plan import RoutePlan, RouteStage, GuardPolicy, create_route_plan_from_template
-from workflow_state import WorkflowState
+from .route_plan import RoutePlan, RouteStage, GuardPolicy, create_route_plan_from_template
+from .workflow_state import WorkflowState
 
 # Phase 3 modules
-from prompt_normalizer import NormalizedInput, PromptNormalizer
-from rule_router import RuleRouter, RuleMatch
+from .prompt_normalizer import NormalizedInput, PromptNormalizer
+from .rule_router import RuleRouter, RuleMatch
 
 # Phase 4
-from semantic_router import SemanticRouter, SemanticCandidate, EmbeddingHealth
+from .semantic_router import SemanticRouter, SemanticCandidate, EmbeddingHealth
 
 
 # ── Resolver Result ───────────────────────────────────

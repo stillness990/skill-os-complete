@@ -1,12 +1,14 @@
-# Artifact Requirements（产物要求）— v4
+# Artifact Requirements（产物要求）— v5
 
 ## 版本
 
-v4.0.0（Skill OS v4 execution_guard）
+v5.0.0（Skill OS v5 execution_guard — 新增 knowledge_asset_ref 要求）
 
 ## 概述
 
 定义不同任务类型进入 `done` 状态时的最小产物要求。execution_guard 在任务完成时必须按此文档逐项检查。
+
+v5 核心变化：所有产生长期知识的 task_type 新增 `knowledge_asset_ref` 要求（L0 Knowledge Bus 闭环）。
 
 ## 核心原则
 
@@ -26,6 +28,7 @@ v4.0.0（Skill OS v4 execution_guard）
 | `plan_ref` | 指向 planning 产出的计划文档 | ✅ 必选 |
 | `implementation_ref` | 指向实现文档或说明 | 推荐 |
 | `changed_files` | 实际变更的文件列表 | ✅ 必选（实施类） |
+| `knowledge_asset_ref` | knowledge-asset 沉淀引用 (project-plan) | ✅ 必选（施工类）/ 推荐（方案类） |
 | `changelog_ref` | 变更日志引用 | 按需 |
 | `review_ref` | 代码审查意见引用 | 按需 |
 | `result_summary` | 结果摘要 | ✅ 必选 |
@@ -54,6 +57,7 @@ v4.0.0（Skill OS v4 execution_guard）
 | artifact | 说明 | 必选 |
 |----------|------|------|
 | `debug_report_ref` | 诊断报告引用 | ✅ 必选 |
+| `knowledge_asset_ref` | knowledge-asset 沉淀引用 (troubleshooting) | ✅ 必选（v5 新增） |
 | `root_cause` | 根因描述 | ✅ 必选 |
 | `fix_recommendation` | 修复建议 | ✅ 必选 |
 | `fix_ref` | 修复引用（如实际修了） | 按需 |
@@ -80,6 +84,7 @@ v4.0.0（Skill OS v4 execution_guard）
 | `study_plan_ref` | 学习计划引用 | 推荐 |
 | `practice_log_ref` | 练习日志引用 | 推荐 |
 | `review_log_ref` | 复盘日志引用 | 推荐 |
+| `knowledge_asset_ref` | knowledge-asset 沉淀引用 (knowledge-note) | ✅ 必选（v5 新增） |
 | `learning_state_update` | 学习状态已更新 | ✅ 必选 |
 | `next_action` | 下一步学习建议 | ✅ 必选 |
 | `next_review` | 下次复盘日期 | 推荐 |
@@ -109,7 +114,41 @@ v4.0.0（Skill OS v4 execution_guard）
 
 ---
 
-## 5. 通用 done 规则（所有 task_type 适用）
+## 5. knowledge_asset_ref 验证规则（v5 新增）
+
+### 5.1 验证流程
+
+```
+任务请求 done
+    ↓
+检查 task_type 是否需要 knowledge_asset_ref
+    ↓
+[强制类型] → knowledge_asset_ref 非空? → 引用文件存在? → 通过
+[推荐类型] → knowledge_asset_ref 非空? → 记录为 bonus ✓
+[不适用]   → 跳过
+```
+
+### 5.2 各 task_type 的 knowledge_asset_ref 要求
+
+| task_type | 要求级别 | 模板 | 写入路径 |
+|-----------|---------|------|---------|
+| `debug` | ✅ 强制 | `troubleshooting` | `knowledge/troubleshooting/` |
+| `learning` | ✅ 强制 | `knowledge-note` | `knowledge/knowledge-notes/` |
+| `delivery` (施工类) | ✅ 强制 | `project-plan` | `knowledge/project-plans/` |
+| `delivery` (plan_only) | 推荐 | `project-plan` | `knowledge/project-plans/` |
+| `code_assistant` | 可选 | `architecture` | `knowledge/architecture/` |
+| `reviewer` / `changelog` | 不适用 | — | — |
+
+### 5.3 引用路径验证
+
+`knowledge_asset_ref` 指向的路径必须满足以下条件之一：
+- 相对于项目根目录存在（如 `knowledge/troubleshooting/2026-06-21_xxx.md`）
+- 基于 `.claude/skills/knowledge-asset/` 的完整路径存在
+- 路径格式合理（非占位符，非空字符串）
+
+---
+
+## 6. 通用 done 规则（所有 task_type 适用）
 
 1. **artifacts 数组不能为空**：至少要有 1 个有效 artifact
 2. **artifact_refs 中至少有一个字段被填充**：不能所有字段都为 null
@@ -129,8 +168,12 @@ v4.0.0（Skill OS v4 execution_guard）
     ↓
 3. 逐项检查 artifact_refs 是否满足最小要求
     ↓
-4. 检查通用 done 规则
+4. [v5 新增] 检查 knowledge_asset_ref（L0 Knowledge Bus 闭环）
     ↓
-5. 全部通过 → 允许 done
+5. 检查通用 done 规则
+    ↓
+6. [v5 新增] 验证 state/ 文件更新（L4 State 闭环）
+    ↓
+7. 全部通过 → 允许 done
    任一失败 → 拒绝 done，返回缺少的 artifact 清单
 ```

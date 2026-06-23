@@ -24,7 +24,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Optional
 
-from orchestration_types import SafeModeStatus, ExecutionStatus, FailureType
+from .orchestration_types import SafeModeStatus, ExecutionStatus, FailureType
 
 
 def _now_iso() -> str:

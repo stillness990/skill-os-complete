@@ -1,7 +1,10 @@
 {
   "meta": {
     "version": "4.0.0",
+    "status": "legacy — 已迁移至 .claude/state/learning-state.json (v5)",
+    "migrated_at": "2026-06-22T00:00:00Z",
     "updated": "2026-06-21T00:00:00Z"
   },
-  "topics": []
+  "topics": [],
+  "_migration_notice": "本文件为 v4 遗留数据。v5 统一状态层已迁移至 .claude/state/learning-state.json。请勿继续写入本文件。"
 }

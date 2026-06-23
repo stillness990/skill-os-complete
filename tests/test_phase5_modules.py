@@ -8,22 +8,21 @@ import sys
 import os
 import tempfile
 
-sys.path.insert(0, "/path/to/skill-os-complete")
-sys.path.insert(0, "/path/to/skill-os-complete/orchestration")
-sys.path.insert(0, "/path/to/skill-os-complete/routing_assets")
-sys.path.insert(0, "/path/to/skill-os-complete/ledger")
+_REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+if _REPO not in sys.path:
+    sys.path.insert(0, _REPO)
 
-from orchestration_types import (
+from orchestration.orchestration_types import (
     Intent, Workflow, TaskStatus, StageStatus, ExecutionStatus,
     SafeModeStatus, FailureType, WORKFLOW_STAGES,
 )
-from route_plan import RoutePlan, RouteStage, GuardPolicy
-from workflow_state import WorkflowState
-from safe_mode import SafeModeManager, get_safe_mode_manager, reset_safe_mode_manager, SafeModeRecord
-from execution_guard import ExecutionGuard, GuardVerdict, GuardResult
-from rollback_manager import RollbackManager, RollbackResult
-from self_healing import SelfHealingManager, HealingConfig, HealingDecision
-from skill_router import SkillRouter, RouterExecutionResult
+from orchestration.route_plan import RoutePlan, RouteStage, GuardPolicy
+from orchestration.workflow_state import WorkflowState
+from orchestration.safe_mode import SafeModeManager, get_safe_mode_manager, reset_safe_mode_manager, SafeModeRecord
+from orchestration.execution_guard import ExecutionGuard, GuardVerdict, GuardResult
+from orchestration.rollback_manager import RollbackManager, RollbackResult
+from orchestration.self_healing import SelfHealingManager, HealingConfig, HealingDecision
+from orchestration.skill_router import SkillRouter, RouterExecutionResult
 
 
 # ══════════════════════════════════════════════════════════

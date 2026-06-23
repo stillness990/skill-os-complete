@@ -1,24 +1,94 @@
-# SOP: [Title]
+# SOP: [操作名称]
 
-## Objective
-What this SOP achieves.
+> 模板: SOP | 版本: 5.0.0
+> 写入路径: `knowledge/sop/{YYYY-MM-DD}_{title}.md`
 
-## Prerequisites
-Tools, accounts, environment setup
+---
 
-## Steps
-1. Step 1
-2. Step 2
-3. Step 3
+## Core Insight
+<!-- 1 句话，≤80 chars — 这个 SOP 做什么、适用于谁 -->
+[一句话描述此 SOP 的目标和适用场景]
 
-## Validation
-How to confirm steps succeeded
+---
 
-## Rollback
-How to revert if something fails
+## Key Knowledge
+<!-- 3-8 条前置知识 -->
+- [前置知识 1：需要的工具/环境/权限]
+- [前置知识 2：涉及的系统/服务]
+- [前置知识 3：关键概念或术语]
+- [前置知识 4：安全注意事项]
 
-## Troubleshooting
-Known issues and solutions
+---
 
-## References
-Links, documentation, repos
+## Execution Steps
+<!-- 4-8 步，每步含：操作 + 预期结果 + 分支条件 -->
+
+### Step 1: [步骤名称]
+- **操作**: [具体执行的命令或操作]
+- **预期结果**: [正常情况下应该看到什么]
+- **分支**: 如果失败 → [跳转到 Step X 或 Failure Cases #Y]
+
+### Step 2: [步骤名称]
+- **操作**:
+- **预期结果**:
+- **分支**:
+
+### Step 3: [步骤名称]
+- **操作**:
+- **预期结果**:
+- **分支**:
+
+<!-- 按需添加 Step 4-8 -->
+
+---
+
+## Commands / Code
+<!-- 完整可运行的命令或脚本，含注释 -->
+
+```bash
+# [命令用途说明]
+command1
+command2
+```
+
+---
+
+## Validation Method
+<!-- 如何确认 SOP 执行成功 -->
+
+1. [验证步骤 1：检查什么、期望看到什么]
+2. [验证步骤 2]
+
+---
+
+## Failure Cases
+<!-- 常见错误表：症状 → 原因 → 修复 -->
+
+| 错误现象 | 原因 | 修复方法 |
+|---------|------|---------|
+| [现象 1] | [根因 1] | [修复步骤 1] |
+| [现象 2] | [根因 2] | [修复步骤 2] |
+
+---
+
+## Best Practices
+<!-- 3-5 条优化建议 -->
+
+- [实践 1]
+- [实践 2]
+- [实践 3]
+
+---
+
+## Related Knowledge
+<!-- 关联知识引用 -->
+
+- `knowledge/sop/[相关SOP].md`
+- `knowledge/troubleshooting/[相关排障].md`
+
+---
+
+## Tags
+<!-- ≥3 个检索标签 -->
+
+#Tag1 #Tag2 #Tag3

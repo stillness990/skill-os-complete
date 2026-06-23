@@ -8,6 +8,7 @@ v4 新增: execution_guard 监督层引用
 import json
 import os
 import re
+import sys
 from pathlib import Path
 from typing import Optional
 
@@ -169,3 +170,123 @@ def build_router_decision(prompt: str) -> dict:
         result["reason"] = f"Intent unclear, fallback to single-skill mode: {best_single}"
 
     return result
+
+
+# ── Semantic fallback ──────────────────────────────────────
+# 语义路由兜底：当关键词匹配无命中时，用 embedding 相似度检索候选 workflow。
+# 依赖 routing_assets/semantic_router.py → Ollama nomic-embed-text。
+# embedding 不可用时静默降级，不崩溃。
+
+SEMANTIC_THRESHOLD = 0.75     # 语义置信度阈值，低于此值不触发
+SEMANTIC_GAP_THRESHOLD = 0.08  # 最佳与次佳候选间距，低于此值视为歧义输入，不触发
+
+
+def build_router_decision_with_semantic(prompt: str) -> dict:
+    """
+    增强版路由决策：关键词规则优先 → 无命中时语义兜底。
+
+    双重过滤：
+    1. 最佳候选 confidence >= SEMANTIC_THRESHOLD
+    2. 最佳与次佳 confidence 差距 >= SEMANTIC_GAP_THRESHOLD
+       （避免「今天天气怎么样」这种三个 workflow 挤在一起的歧义输入）
+
+    与 build_router_decision 返回格式完全一致，
+    额外增加 semantic_used / semantic_candidates 字段用于诊断。
+    """
+    # Step 1: 关键词规则匹配（现有逻辑）
+    decision = build_router_decision(prompt)
+
+    if decision["has_hit"]:
+        decision["semantic_used"] = False
+        return decision
+
+    # Step 2: 语义兜底
+    try:
+        _routing_assets = PROJECT_DIR.parent / "routing_assets"
+        if str(_routing_assets) not in sys.path:
+            sys.path.insert(0, str(_routing_assets))
+
+        from semantic_router import get_semantic_router  # type: ignore[import-not-found]
+
+        sr = get_semantic_router()
+        candidates, health = sr.get_candidates(prompt, top_k=3)
+
+        # 语义不可用 → 保持原结果
+        if health.degraded or not candidates:
+            decision["reason"] = (
+                f"No rule hit + semantic unavailable"
+                + (f": {health.error}" if health.error else "")
+            )
+            decision["semantic_used"] = False
+            return decision
+
+        best = candidates[0]
+
+        # 过滤 1：置信度检查
+        if best.confidence < SEMANTIC_THRESHOLD:
+            decision["reason"] = (
+                f"No rule hit + semantic confidence too low "
+                f"({best.confidence:.2f} < {SEMANTIC_THRESHOLD})"
+            )
+            decision["semantic_used"] = False
+            decision["semantic_candidates"] = [c.to_dict() for c in candidates]
+            return decision
+
+        # 过滤 2：候选间距检查（防止歧义输入）
+        if len(candidates) >= 2:
+            gap = best.confidence - candidates[1].confidence
+            if gap < SEMANTIC_GAP_THRESHOLD:
+                decision["reason"] = (
+                    f"No rule hit + semantic gap too small "
+                    f"({gap:.3f} < {SEMANTIC_GAP_THRESHOLD}, "
+                    f"best={best.workflow} vs 2nd={candidates[1].workflow})"
+                )
+                decision["semantic_used"] = False
+                decision["semantic_candidates"] = [c.to_dict() for c in candidates]
+                return decision
+
+        # 映射 workflow → 决策字段
+        wf_name = best.workflow
+        workflows = load_workflow_templates()
+        wf = workflows.get(wf_name)
+
+        if not wf:
+            decision["reason"] = (
+                f"Semantic hit '{wf_name}' but workflow template not found"
+            )
+            decision["semantic_used"] = False
+            return decision
+
+        intent = wf.get("intent")
+        primary = wf.get("primary_skill")
+        secondary = wf.get("secondary_skills", [])
+
+        # 更新 scores 以反映语义结果（用于注入展示）
+        semantic_score = int(best.confidence * 10)
+        decision["scores"]["semantic"] = semantic_score
+
+        decision.update({
+            "intent": intent,
+            "workflow": wf_name,
+            "primary_skill": primary,
+            "secondary_skills": secondary,
+            "best_single_skill": primary,
+            "has_hit": True,
+            "reason": (
+                f"Semantic fallback: {wf_name} "
+                f"(confidence={best.confidence:.2f}, sim={best.similarity_score:.3f}, "
+                f"gap={gap:.3f})"
+            ),
+            "semantic_used": True,
+            "semantic_candidates": [c.to_dict() for c in candidates],
+        })
+        return decision
+
+    except ImportError as e:
+        decision["reason"] = f"No rule hit + semantic import error: {e}"
+        decision["semantic_used"] = False
+        return decision
+    except Exception as e:
+        decision["reason"] = f"No rule hit + semantic error: {e}"
+        decision["semantic_used"] = False
+        return decision

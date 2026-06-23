@@ -20,7 +20,7 @@ debug（完整诊断流程：现象→假设→验证→修复建议→回归清
     ↓
 code_assistant（代码修复，按需）
     ↓
-debug_log / debug_archive（排查记录归档）
+knowledge-asset / troubleshooting（排查记录结构化沉淀）
     ↓
 execution_guard（完成检查：debug_report_ref + root_cause + regression checklist）
 ```
@@ -32,7 +32,7 @@ execution_guard（完成检查：debug_report_ref + root_cause + regression chec
 | summarize | summarize | briefing | 问题背景底稿 | 可选 |
 | diagnose | debug | full | 诊断报告 | ✅ |
 | fix | code_assistant | on_demand | 代码修复 | 按需 |
-| archive | debug_log | on_demand | 排查记录归档 | 按需 |
+| archive | knowledge-asset | troubleshooting | 排查记录归档 | 按需 |
 | guard | execution_guard | auto | 完成检查 | ✅ |
 
 ## debug 技能的固定诊断流程

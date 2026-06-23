@@ -25,7 +25,7 @@ from dataclasses import dataclass, field
 from datetime import datetime, timezone
 from typing import Callable, Optional
 
-from orchestration_types import (
+from .orchestration_types import (
     Workflow,
     TaskStatus,
     StageStatus,
@@ -34,8 +34,28 @@ from orchestration_types import (
     SafeModeStatus,
     WORKFLOW_STAGES,
 )
-from route_plan import RoutePlan, RouteStage
-from workflow_state import WorkflowState
+from .route_plan import RoutePlan, RouteStage
+from .workflow_state import WorkflowState
+
+# ── L6 Telemetry (fail-silent, disabled by default) ──────
+try:
+    import sys as _sys
+    # Ensure project root is on path for telemetry imports
+    _project_root = __file__ and _sys.modules[__name__].__file__
+    if _project_root is None:
+        _project_root = _sys.modules.get('__main__', {}).__dict__.get('__file__', '')
+    from execution_telemetry import (
+        start_workflow as _tel_start_workflow,
+        enter_stage as _tel_enter_stage,
+        complete_stage as _tel_complete_stage,
+        fail_stage as _tel_fail_stage,
+        set_skill as _tel_set_skill,
+        complete_workflow as _tel_complete_workflow,
+        fail_workflow as _tel_fail_workflow,
+    )
+    _telemetry_available = True
+except ImportError:
+    _telemetry_available = False
 
 
 def _now_iso() -> str:
@@ -154,18 +174,47 @@ class SkillRouter:
         返回:
             RouterExecutionResult
         """
+        total_stages = len(route_plan.stages)
+        workflow_name = route_plan.workflow.value if route_plan.workflow else ""
+
         result = RouterExecutionResult(
             route_id=route_plan.route_id,
-            workflow=route_plan.workflow.value if route_plan.workflow else "",
-            total_stages=len(route_plan.stages),
+            workflow=workflow_name,
+            total_stages=total_stages,
             started_at=_now_iso(),
         )
 
         workflow_state.execution_status = ExecutionStatus.IN_PROGRESS
 
+        # ── L6 Telemetry: workflow start ─────────────────
+        if _telemetry_available:
+            try:
+                _tel_start_workflow(
+                    workflow_name=workflow_name,
+                    total_stages=total_stages,
+                    task_id=(task_context or {}).get("task_id", ""),
+                )
+                # Check for resume hint
+                try:
+                    from execution_telemetry.resume_manager import check_unfinished_workflow
+                    from execution_telemetry.cli_display import display_resume_hint
+                    resume_info = check_unfinished_workflow(workflow_name)
+                    if resume_info:
+                        display_resume_hint(
+                            workflow=resume_info["workflow"],
+                            last_stage_index=resume_info["last_stage_index"],
+                            last_stage_name=resume_info["last_stage_name"],
+                            last_skill=resume_info["last_skill"],
+                            final_status=resume_info["final_status"],
+                        )
+                except Exception:
+                    pass
+            except Exception:
+                pass
+
         # 确定起始 stage
         skip_until = continue_from
-        for stage in route_plan.stages:
+        for idx, stage in enumerate(route_plan.stages, start=1):
             # 跳过已完成的 stage
             if skip_until and stage.phase != skip_until:
                 if stage.status == StageStatus.SUCCESS:
@@ -187,16 +236,43 @@ class SkillRouter:
                 continue
 
             # 执行 stage
-            stage_result = self._execute_stage(stage, route_plan, workflow_state, task_context)
+            stage_result = self._execute_stage(
+                stage, route_plan, workflow_state, task_context, stage_index=idx
+            )
             result.stage_results.append(stage_result)
 
             if stage_result.success:
                 result.completed_stages += 1
                 result.all_artifacts.extend(stage_result.artifacts)
                 stage.artifact_paths = stage_result.artifacts
+
+                # ── L6 Telemetry: stage complete ──────────
+                if _telemetry_available:
+                    try:
+                        _tel_complete_stage(
+                            stage_index=idx,
+                            stage_name=stage.phase,
+                            next_stage=(
+                                route_plan.stages[idx].phase
+                                if idx < len(route_plan.stages) else ""
+                            ),
+                        )
+                    except Exception:
+                        pass
             else:
                 result.failed_stages += 1
                 result.errors.append(f"{stage.phase}: {stage_result.error}")
+
+                # ── L6 Telemetry: stage fail ─────────────
+                if _telemetry_available:
+                    try:
+                        _tel_fail_stage(
+                            stage_index=idx,
+                            stage_name=stage.phase,
+                            reason=stage_result.error,
+                        )
+                    except Exception:
+                        pass
 
                 # 失败 → self_healing 决策
                 heal_decision = self._handle_failure(
@@ -224,6 +300,22 @@ class SkillRouter:
 
         workflow_state.execution_status = result.execution_status
         result.finished_at = _now_iso()
+
+        # ── L6 Telemetry: workflow complete / fail ───────
+        if _telemetry_available:
+            try:
+                if result.execution_status == ExecutionStatus.COMPLETED:
+                    _tel_complete_workflow(
+                        summary=f"completed {result.completed_stages}/{total_stages} stages",
+                    )
+                elif result.execution_status in (ExecutionStatus.FAILED, ExecutionStatus.SAFE_MODE):
+                    last_error = result.errors[-1] if result.errors else ""
+                    _tel_fail_workflow(
+                        reason=last_error,
+                    )
+            except Exception:
+                pass
+
         return result
 
     # ── Stage execution ───────────────────────────────────
@@ -234,11 +326,25 @@ class SkillRouter:
         route_plan: RoutePlan,
         workflow_state: WorkflowState,
         task_context: Optional[dict],
+        stage_index: int = 0,
     ) -> StageExecutionResult:
         """执行单个 stage"""
         # 标记 running
         stage.status = StageStatus.RUNNING
         workflow_state.current_stage = stage.phase
+
+        # ── L6 Telemetry: enter stage + set skill ────────
+        if _telemetry_available:
+            try:
+                _tel_enter_stage(
+                    stage_index=stage_index,
+                    stage_name=stage.phase,
+                    total_stages=len(route_plan.stages),
+                    skill=stage.skill,
+                )
+                _tel_set_skill(skill_name=stage.skill)
+            except Exception:
+                pass
 
         # 准备上下文
         ctx = task_context or {}
@@ -256,6 +362,16 @@ class SkillRouter:
             output = self._execute_skill(stage.skill, stage.mode, ctx)
         except Exception as e:
             stage.status = StageStatus.FAILED
+            # ── L6 Telemetry: skill exception → stage fail ──
+            if _telemetry_available:
+                try:
+                    _tel_fail_stage(
+                        stage_index=stage_index,
+                        stage_name=stage.phase,
+                        reason=f"Skill execution exception: {e}",
+                    )
+                except Exception:
+                    pass
             return StageExecutionResult(
                 stage_phase=stage.phase,
                 skill=stage.skill,
@@ -274,6 +390,16 @@ class SkillRouter:
             stage.status = StageStatus.SUCCESS
         else:
             stage.status = StageStatus.FAILED
+            # ── L6 Telemetry: output failure → stage fail ──
+            if _telemetry_available and error:
+                try:
+                    _tel_fail_stage(
+                        stage_index=stage_index,
+                        stage_name=stage.phase,
+                        reason=error,
+                    )
+                except Exception:
+                    pass
 
         stage_result = StageExecutionResult(
             stage_phase=stage.phase,

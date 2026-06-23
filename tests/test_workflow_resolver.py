@@ -9,14 +9,14 @@ P4-7: 三大场景 RoutePlan 正确
 """
 
 import sys
-sys.path.insert(0, "/path/to/skill-os-complete")
-sys.path.insert(0, "/path/to/skill-os-complete/routing_assets")
-sys.path.insert(0, "/path/to/skill-os-complete/orchestration")
-sys.path.insert(0, "/path/to/skill-os-complete/ledger")
+import os
+_REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+if _REPO not in sys.path:
+    sys.path.insert(0, _REPO)
 
-from orchestration_types import Workflow, Intent, SafeModeStatus
-from workflow_resolver import WorkflowResolver
-from workflow_state import WorkflowState
+from orchestration.orchestration_types import Workflow, Intent, SafeModeStatus
+from orchestration.workflow_resolver import WorkflowResolver
+from orchestration.workflow_state import WorkflowState
 
 
 def test_resolver_basic():

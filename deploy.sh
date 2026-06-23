@@ -1,7 +1,7 @@
 #!/bin/bash
 # ══════════════════════════════════════════════════════
-#  Claude Code Skill OS v4 — 一键部署脚本
-#  用于在已有安装上升级到 v4（不做全新安装）
+#  Claude Code Skill OS v5.0.0 — 一键部署/升级脚本
+#  用于在已有安装上升级到 v5.0.0（不做全新安装）
 #  用法：bash skill-os-deploy.sh
 # ══════════════════════════════════════════════════════
 
@@ -12,9 +12,11 @@ TARGET="$(pwd)"
 
 echo ""
 echo "╔══════════════════════════════════════════════╗"
-echo "║   Claude Code Skill OS v4 — 部署/升级         ║"
+echo "║   Claude Code Skill OS v5.0.0 — 部署/升级      ║"
+echo "║   v4→v5: L0 Knowledge Bus + State + 7 Rules  ║"
 echo "╚══════════════════════════════════════════════╝"
 echo ""
+echo "  部署源：$SCRIPT_DIR"
 echo "  部署目标：$TARGET"
 echo ""
 
@@ -30,161 +32,171 @@ fi
 # ── 2. 备份当前配置 ──────────────────────────────────
 BACKUP_DIR="$TARGET/.claude/backups"
 mkdir -p "$BACKUP_DIR"
-BACKUP_NAME="pre-v4-$(date +%Y%m%d-%H%M%S)"
+BACKUP_NAME="pre-v5.0.0-$(date +%Y%m%d-%H%M%S)"
 
-if [ -f "$TARGET/.claude/settings.json" ]; then
-  cp "$TARGET/.claude/settings.json" "$BACKUP_DIR/$BACKUP_NAME-settings.json"
-fi
-if [ -f "$TARGET/.claude/skill-rules.json" ]; then
-  cp "$TARGET/.claude/skill-rules.json" "$BACKUP_DIR/$BACKUP_NAME-skill-rules.json"
-fi
-echo "  ✓ 已备份当前配置到 backups/$BACKUP_NAME-*"
+for f in settings.json skill-rules.json; do
+  if [ -f "$TARGET/.claude/$f" ]; then
+    cp "$TARGET/.claude/$f" "$BACKUP_DIR/$BACKUP_NAME-$f"
+    echo "  ✓ 已备份 $f"
+  fi
+done
 
-# ── 3. 同步 v4 新增目录 ─────────────────────────────
+# v5: 也备份旧 task_ledger 和 learning_state
+for f in "$TARGET/.claude/system/task_ledger/tasks.json" "$TARGET/.claude/system/learning_state/state.json"; do
+  if [ -f "$f" ]; then
+    cp "$f" "$BACKUP_DIR/$BACKUP_NAME-$(basename $(dirname $f))-$(basename $f)"
+    echo "  ✓ 已备份 $(basename $(dirname $f))/$(basename $f)"
+  fi
+done
+
+# ── 3. 同步 v5 目录结构 ─────────────────────────────
 echo ""
-echo "  ── 同步 v4 目录结构 ──"
+echo "  ── 同步 v5 目录结构 ──"
 
 mkdir -p "$TARGET/.claude/system/execution_guard"
 echo "  ✓ system/execution_guard/"
 
 mkdir -p "$TARGET/.claude/system/learning_state"
-echo "  ✓ system/learning_state/"
+echo "  ✓ system/learning_state/ (legacy)"
 
-mkdir -p "$TARGET/.claude/orchestration/schema"
-mkdir -p "$TARGET/.claude/orchestration/runs"
-mkdir -p "$TARGET/.claude/orchestration/artifacts"
-echo "  ✓ orchestration/ (schema/runs/artifacts)"
+mkdir -p "$TARGET/.claude/system/knowledge"
+echo "  ✓ system/knowledge/ (legacy)"
+
+mkdir -p "$TARGET/.claude/system/debug_archive"
+echo "  ✓ system/debug_archive/"
 
 mkdir -p "$TARGET/.claude/agents"
-echo "  ✓ agents/"
+echo "  ✓ agents/ (预留)"
 
-# ── 4. 同步 v4 新增文件 ─────────────────────────────
+# v5: state/ 统一状态层
+mkdir -p "$TARGET/.claude/state/checkpoint"
+echo "  ✓ state/ + checkpoint/ (v5 统一状态层)"
+
+# v5: knowledge/ 知识库子目录
+KNOWLEDGE_DIR="$TARGET/.claude/skills/knowledge-asset/knowledge"
+for subdir in sop troubleshooting architecture knowledge-notes project-plans; do
+  mkdir -p "$KNOWLEDGE_DIR/$subdir"
+  touch "$KNOWLEDGE_DIR/$subdir/.gitkeep" 2>/dev/null || true
+done
+echo "  ✓ knowledge/ (5 子目录)"
+
+# ── 4. 同步 v5 新增文件 ─────────────────────────────
 echo ""
-echo "  ── 同步 v4 文件 ──"
+echo "  ── 同步 v5 文件 ──"
 
 # execution_guard 文档
 for f in task-state-machine.md artifact-requirements.md guard-rules.md stall-policy.md audit-checklist.md; do
   if [ -f "$SCRIPT_DIR/.claude/system/execution_guard/$f" ]; then
     cp "$SCRIPT_DIR/.claude/system/execution_guard/$f" "$TARGET/.claude/system/execution_guard/"
-    echo "  ✓ $f"
+    echo "  ✓ execution_guard/$f"
   fi
 done
 
-# learning_state 文档
+# learning_state 文档 (legacy, 保留参考)
 for f in learning-state-schema.md learning-state-machine.md study-resume-policy.md; do
   if [ -f "$SCRIPT_DIR/.claude/system/learning_state/$f" ]; then
     cp "$SCRIPT_DIR/.claude/system/learning_state/$f" "$TARGET/.claude/system/learning_state/"
-    echo "  ✓ $f"
+    echo "  ✓ learning_state/$f (legacy)"
   fi
 done
 
-# state.json（仅在不存在时创建）
-if [ ! -f "$TARGET/.claude/system/learning_state/state.json" ]; then
-  cat > "$TARGET/.claude/system/learning_state/state.json" << 'STATEJSON'
-{
-  "meta": {
-    "version": "4.0.0",
-    "updated": "DEPLOY_DATE"
-  },
-  "topics": []
-}
-STATEJSON
-  echo "  ✓ state.json（新建）"
-else
-  echo "  • state.json（已存在，跳过）"
+# v5: state/ 文件（仅新建，不覆盖已有数据）
+for sf in current-task.json learning-state.json execution-state.json task-history.json; do
+  if [ ! -f "$TARGET/.claude/state/$sf" ]; then
+    if [ -f "$SCRIPT_DIR/.claude/state/$sf" ]; then
+      cp "$SCRIPT_DIR/.claude/state/$sf" "$TARGET/.claude/state/"
+      echo "  ✓ state/$sf (新建)"
+    fi
+  else
+    echo "  • state/$sf (已存在，跳过)"
+  fi
+done
+
+# state/README.md
+if [ -f "$SCRIPT_DIR/.claude/state/README.md" ]; then
+  cp "$SCRIPT_DIR/.claude/state/README.md" "$TARGET/.claude/state/"
+  echo "  ✓ state/README.md"
 fi
 
-# guard hooks
+# state/checkpoint/.gitkeep
+touch "$TARGET/.claude/state/checkpoint/.gitkeep" 2>/dev/null || true
+
+# guard hooks (v5 升级版)
 for f in task-guard.py completion-guard.py; do
   if [ -f "$SCRIPT_DIR/.claude/hooks/$f" ]; then
     cp "$SCRIPT_DIR/.claude/hooks/$f" "$TARGET/.claude/hooks/"
     chmod +x "$TARGET/.claude/hooks/$f"
-    echo "  ✓ hooks/$f"
+    echo "  ✓ hooks/$f (v5)"
   fi
 done
 
-# orchestration/agents README
-if [ -f "$SCRIPT_DIR/.claude/orchestration/README.md" ]; then
-  cp "$SCRIPT_DIR/.claude/orchestration/README.md" "$TARGET/.claude/orchestration/"
-  echo "  ✓ orchestration/README.md"
-fi
+# agents README
 if [ -f "$SCRIPT_DIR/.claude/agents/README.md" ]; then
   cp "$SCRIPT_DIR/.claude/agents/README.md" "$TARGET/.claude/agents/"
   echo "  ✓ agents/README.md"
 fi
 
-	# ── 4.5. 同步新增根目录模块（orchestration/routing_assets/tests/ledger） ──
-	echo ""
-	echo "  ── 同步新增模块 ──"
-
-	# orchestration 模块（Phase 4+ 编排引擎）
-	if [ -d "$SCRIPT_DIR/orchestration" ]; then
-	  mkdir -p "$TARGET/orchestration"
-	  cp -r "$SCRIPT_DIR/orchestration/"*.py "$TARGET/orchestration/" 2>/dev/null || true
-	  echo "  ✓ orchestration/ (phase 4+ 模块)"
-	fi
-
-	# routing_assets 模块
-	if [ -d "$SCRIPT_DIR/routing_assets" ]; then
-	  mkdir -p "$TARGET/routing_assets"
-	  cp -r "$SCRIPT_DIR/routing_assets/"*.py "$SCRIPT_DIR/routing_assets/"*.json "$TARGET/routing_assets/" 2>/dev/null || true
-	  echo "  ✓ routing_assets/"
-	fi
-
-	# ledger 模块
-	if [ -d "$SCRIPT_DIR/ledger" ]; then
-	  mkdir -p "$TARGET/ledger"
-	  cp -r "$SCRIPT_DIR/ledger/"*.py "$TARGET/ledger/" 2>/dev/null || true
-	  echo "  ✓ ledger/"
-	fi
-
-	# tests 模块
-	if [ -d "$SCRIPT_DIR/tests" ]; then
-	  mkdir -p "$TARGET/tests"
-	  cp -r "$SCRIPT_DIR/tests/"*.py "$TARGET/tests/" 2>/dev/null || true
-	  echo "  ✓ tests/"
-	fi
-
-	# docs 模块
-	if [ -d "$SCRIPT_DIR/docs" ]; then
-	  mkdir -p "$TARGET/docs"
-	  cp -r "$SCRIPT_DIR/docs/"* "$TARGET/docs/" 2>/dev/null || true
-	  echo "  ✓ docs/"
-	fi
-
-	# reports 模块
-	if [ -d "$SCRIPT_DIR/reports" ]; then
-	  mkdir -p "$TARGET/reports"
-	  cp -r "$SCRIPT_DIR/reports/"*.md "$TARGET/reports/" 2>/dev/null || true
-	  echo "  ✓ reports/"
-	fi
-
-# ── 5. 同步 v4 修改的文件（核心技能 + workflow + schema） ──
-echo ""
-echo "  ── 同步 v4 更新的文件 ──"
-
-# 核心三技能
-for skill in summarize planning debug; do
-  if [ -d "$SCRIPT_DIR/.claude/skills/core/$skill" ]; then
-    mkdir -p "$TARGET/.claude/skills/core/$skill"
-    cp -r "$SCRIPT_DIR/.claude/skills/core/$skill/"* "$TARGET/.claude/skills/core/$skill/"
-    echo "  ✓ skills/core/$skill/"
-  fi
-done
-
-# teach-plus
-if [ -d "$SCRIPT_DIR/.claude/skills/teach-plus" ]; then
-  mkdir -p "$TARGET/.claude/skills/teach-plus"
-  cp -r "$SCRIPT_DIR/.claude/skills/teach-plus/"* "$TARGET/.claude/skills/teach-plus/"
-  echo "  ✓ skills/teach-plus/"
+# v5: knowledge_asset_synonyms.md
+if [ -f "$SCRIPT_DIR/.claude/router/knowledge_asset_synonyms.md" ]; then
+  cp "$SCRIPT_DIR/.claude/router/knowledge_asset_synonyms.md" "$TARGET/.claude/router/"
+  echo "  ✓ router/knowledge_asset_synonyms.md"
 fi
 
-	# knowledge-asset
-	if [ -d "$SCRIPT_DIR/.claude/skills/knowledge-asset" ]; then
-	  mkdir -p "$TARGET/.claude/skills/knowledge-asset"
-	  cp -r "$SCRIPT_DIR/.claude/skills/knowledge-asset/"* "$TARGET/.claude/skills/knowledge-asset/"
-	  echo "  ✓ skills/knowledge-asset/"
-	fi
+# ── 4.5. 同步根目录模块 ────────────────────────────
+echo ""
+echo "  ── 同步编排引擎 + 数据模块 ──"
+
+# orchestration 模块
+if [ -d "$SCRIPT_DIR/orchestration" ]; then
+  mkdir -p "$TARGET/orchestration"
+  cp "$SCRIPT_DIR/orchestration/"*.py "$TARGET/orchestration/" 2>/dev/null || true
+  MOD_COUNT=$(ls "$TARGET/orchestration/"*.py 2>/dev/null | wc -l)
+  echo "  ✓ orchestration/ ($MOD_COUNT 个 Python 模块)"
+fi
+
+# routing_assets 模块
+if [ -d "$SCRIPT_DIR/routing_assets" ]; then
+  mkdir -p "$TARGET/routing_assets"
+  cp "$SCRIPT_DIR/routing_assets/"*.py "$TARGET/routing_assets/" 2>/dev/null || true
+  cp "$SCRIPT_DIR/routing_assets/"*.json "$TARGET/routing_assets/" 2>/dev/null || true
+  echo "  ✓ routing_assets/"
+fi
+
+# ledger 模块
+if [ -d "$SCRIPT_DIR/ledger" ]; then
+  mkdir -p "$TARGET/ledger"
+  cp "$SCRIPT_DIR/ledger/"*.py "$TARGET/ledger/" 2>/dev/null || true
+  echo "  ✓ ledger/"
+fi
+
+# tests 模块
+if [ -d "$SCRIPT_DIR/tests" ]; then
+  mkdir -p "$TARGET/tests"
+  cp "$SCRIPT_DIR/tests/"*.py "$TARGET/tests/" 2>/dev/null || true
+  TEST_COUNT=$(ls "$TARGET/tests/test_"*.py 2>/dev/null | wc -l)
+  echo "  ✓ tests/ ($TEST_COUNT 个测试文件)"
+fi
+
+# docs 模块
+if [ -d "$SCRIPT_DIR/docs" ]; then
+  mkdir -p "$TARGET/docs"
+  cp -r "$SCRIPT_DIR/docs/"* "$TARGET/docs/" 2>/dev/null || true
+  echo "  ✓ docs/"
+fi
+
+# ── 5. 同步 v5 核心文件 ─────────────────────────────
+echo ""
+echo "  ── 同步 v5 更新的文件 ──"
+
+# v5: 全量同步所有 skills（含 legacy sop/debug_log，确保两侧一致）
+if [ -d "$SCRIPT_DIR/.claude/skills" ]; then
+  for skdir in "$SCRIPT_DIR/.claude/skills/"*/; do
+    skname=$(basename "$skdir")
+    mkdir -p "$TARGET/.claude/skills/$skname"
+    cp -r "$skdir"* "$TARGET/.claude/skills/$skname/" 2>/dev/null || true
+    echo "  ✓ skills/$skname/"
+  done
+fi
 
 # workflow 文档
 if [ -d "$SCRIPT_DIR/.claude/workflows" ]; then
@@ -207,7 +219,7 @@ for f in skill_index.json workflow_templates.json routing_rules.py intent_schema
   fi
 done
 
-# skill-rules.json（含 execution_guard 条目）
+# skill-rules.json
 if [ -f "$SCRIPT_DIR/.claude/skill-rules.json" ]; then
   cp "$SCRIPT_DIR/.claude/skill-rules.json" "$TARGET/.claude/"
   echo "  ✓ skill-rules.json"
@@ -220,9 +232,25 @@ if [ -f "$SCRIPT_DIR/.claude/hooks/skill-router.py" ]; then
   echo "  ✓ hooks/skill-router.py"
 fi
 
-# ── 6. 同步 README / CLAUDE ─────────────────────────
+# v5: sop/debug_log 保留为 legacy 兼容层（status: legacy），不再删除
+#      其路由已合并入 knowledge-asset，但 SKILL.md 本体保留作 fallback
+for old_skill in sop debug_log; do
+  OLD_FILE="$TARGET/.claude/skills/$old_skill/SKILL.md"
+  if [ -f "$OLD_FILE" ]; then
+    echo "  • skills/$old_skill/ (legacy 兼容层，保留)"
+  fi
+done
+
+# ── 6. 同步 v5 系统文档 ─────────────────────────────
 echo ""
-echo "  ── 同步文档 ──"
+echo "  ── 同步 v5 系统文档 ──"
+
+for doc in ARCHITECTURE.md EXECUTION_FLOW.md STATE_SYSTEM.md KNOWLEDGE_SYSTEM.md; do
+  if [ -f "$SCRIPT_DIR/$doc" ]; then
+    cp "$SCRIPT_DIR/$doc" "$TARGET/$doc"
+    echo "  ✓ $doc"
+  fi
+done
 
 if [ -f "$SCRIPT_DIR/CLAUDE.md" ]; then
   cp "$SCRIPT_DIR/CLAUDE.md" "$TARGET/CLAUDE.md"
@@ -239,6 +267,7 @@ chmod +x "$TARGET/.claude/hooks/skill-router.py" 2>/dev/null || true
 chmod +x "$TARGET/.claude/hooks/task-guard.py" 2>/dev/null || true
 chmod +x "$TARGET/.claude/hooks/completion-guard.py" 2>/dev/null || true
 chmod +x "$TARGET/.claude/system/task_ledger/task-ops.py" 2>/dev/null || true
+chmod +x "$TARGET/orchestration/"*.py 2>/dev/null || true
 
 # ── 8. 快速验证 ──────────────────────────────────────
 echo ""
@@ -251,23 +280,80 @@ python3 -c "import json; json.load(open('$TARGET/.claude/skill-rules.json'))" 2>
 python3 -c "import json; json.load(open('$TARGET/.claude/router/workflow_templates.json'))" 2>/dev/null \
   && echo "  ✓ workflow_templates.json 格式正确" || echo "  ⚠ workflow_templates.json 需要检查"
 
-# v4 关键模块存在性检查
+# v5 state/ JSON 验证
+echo ""
+echo "  ── v5 State JSON 验证 ──"
+for sf in current-task.json learning-state.json execution-state.json task-history.json; do
+  if [ -f "$TARGET/.claude/state/$sf" ]; then
+    python3 -c "import json; json.load(open('$TARGET/.claude/state/$sf'))" 2>/dev/null \
+      && echo "  ✓ state/$sf 格式正确" || echo "  ⚠ state/$sf 需要检查"
+  fi
+done
+
+# v5 关键模块存在性检查
+echo ""
+echo "  ── v5 关键文件检查 ──"
 for check in \
   "$TARGET/.claude/system/execution_guard/guard-rules.md" \
   "$TARGET/.claude/system/execution_guard/task-state-machine.md" \
-  "$TARGET/.claude/system/learning_state/learning-state-schema.md" \
+  "$TARGET/.claude/system/execution_guard/artifact-requirements.md" \
+  "$TARGET/.claude/system/execution_guard/audit-checklist.md" \
   "$TARGET/.claude/hooks/task-guard.py" \
   "$TARGET/.claude/hooks/completion-guard.py" \
-  "$TARGET/.claude/orchestration/README.md" \
-  "$TARGET/.claude/agents/README.md" \
-  "$TARGET/.claude/skills/knowledge-asset/SKILL.md"
+  "$TARGET/.claude/skills/knowledge-asset/SKILL.md" \
+  "$TARGET/.claude/state/README.md" \
+  "$TARGET/.claude/state/current-task.json" \
+  "$TARGET/.claude/state/learning-state.json" \
+  "$TARGET/.claude/state/execution-state.json" \
+  "$TARGET/.claude/state/task-history.json" \
+  "$TARGET/.claude/router/knowledge_asset_synonyms.md" \
+  "$TARGET/orchestration/prompt_normalizer.py" \
+  "$TARGET/orchestration/rule_router.py" \
+  "$TARGET/orchestration/workflow_resolver.py" \
+  "$TARGET/orchestration/skill_router.py" \
+  "$TARGET/orchestration/execution_guard.py" \
+  "$TARGET/orchestration/safe_mode.py" \
+  "$TARGET/orchestration/rollback_manager.py" \
+  "$TARGET/ledger/task_ledger.py"
 do
   if [ -f "$check" ]; then
-    echo "  ✓ $(echo $check | sed "s|$TARGET/.claude/||")"
+    echo "  ✓ $(echo $check | sed "s|$TARGET/||")"
   else
-    echo "  ✗ 缺失：$(echo $check | sed "s|$TARGET/.claude/||")"
+    echo "  ✗ 缺失：$(echo $check | sed "s|$TARGET/||")"
   fi
 done
+
+# 编排模块导入验证
+echo ""
+echo "  ── 编排模块导入验证 ──"
+python3 -c "
+import sys
+sys.path.insert(0, '$TARGET')
+sys.path.insert(0, '$TARGET/orchestration')
+sys.path.insert(0, '$TARGET/ledger')
+sys.path.insert(0, '$TARGET/routing_assets')
+mods = [
+    'orchestration_types',
+    'route_plan',
+    'workflow_state',
+    'prompt_normalizer',
+    'rule_router',
+    'embedding_provider',
+    'semantic_router',
+    'workflow_resolver',
+    'skill_router',
+    'execution_guard',
+    'safe_mode',
+    'rollback_manager',
+    'self_healing',
+]
+for m in mods:
+    try:
+        __import__(m)
+        print(f'  ✓ {m}')
+    except Exception as e:
+        print(f'  ✗ {m}: {e}')
+" 2>&1
 
 # ── 9. 路由快速测试 ─────────────────────────────────
 echo ""
@@ -276,24 +362,34 @@ echo '{"prompt":"帮我debug这段代码"}' | CLAUDE_PROJECT_DIR="$TARGET" pytho
   && echo "  ✓ debug 路由正常" || echo "  ✗ debug 路由异常"
 echo '{"prompt":"给我一个计划"}' | CLAUDE_PROJECT_DIR="$TARGET" python3 "$TARGET/.claude/hooks/skill-router.py" 2>/dev/null | grep -q "planning" \
   && echo "  ✓ planning 路由正常" || echo "  ✗ planning 路由异常"
+echo '{"prompt":"帮我写个SOP"}' | CLAUDE_PROJECT_DIR="$TARGET" python3 "$TARGET/.claude/hooks/skill-router.py" 2>/dev/null | grep -q "knowledge-asset" \
+  && echo "  ✓ knowledge-asset 路由正常 (SOP)" || echo "  ✗ knowledge-asset 路由异常"
 echo '{"prompt":"检查任务完成状态"}' | CLAUDE_PROJECT_DIR="$TARGET" python3 "$TARGET/.claude/hooks/skill-router.py" 2>/dev/null | grep -q "execution_guard" \
   && echo "  ✓ execution_guard 路由正常" || echo "  ✗ execution_guard 路由异常"
 
 # ── 10. 完成 ─────────────────────────────────────────
 echo ""
 echo "╔══════════════════════════════════════════════╗"
-echo "║  Skill OS v4 部署完成！                       ║"
+echo "║  Skill OS v5.0.0 部署完成！                   ║"
 echo "╚══════════════════════════════════════════════╝"
 echo ""
 echo "  备份位置：.claude/backups/$BACKUP_NAME-*"
 echo "  如需回滚：cp .claude/backups/$BACKUP_NAME-settings.json .claude/settings.json"
 echo ""
-echo "  v4 新增模块已就绪："
-echo "    • execution_guard   — 5 规则 + 2 hook + 状态机"
-echo "    • learning_state    — 7 阶段状态机 + 断档恢复"
-echo "    • knowledge-asset   — 知识资产系统（15 技能）"
-echo "    • orchestration     — Phase 4+ 编排模块"
-echo "    • routing_assets    — 路由资产测试"
-echo "    • tests             — 自动化测试套件"
-echo "    • docs/reports      — 升级文档 + 交付报告"
+echo "  v5.0.0 升级内容："
+echo "    • L0 Knowledge Bus  — knowledge-asset 唯一知识出口 (sop/debug_log 合并)"
+echo "    • L4 统一状态层      — .claude/state/ (4 JSON + checkpoint)"
+echo "    • L5 7 条 Guard 规则 — 5 层校验引擎 (state→artifacts→type→L0→L4)"
+echo "    • 智能路由           — 53 knowledge-asset keywords + 16 patterns + 6 组同义词"
+echo "    • Checkpoint 恢复    — stage 完成自动 + /checkpoint 手动 + safe_mode 强制"
+echo "    • 系统文档           — ARCHITECTURE / EXECUTION_FLOW / STATE_SYSTEM / KNOWLEDGE_SYSTEM"
+echo ""
+echo "  v5 系统文档："
+echo "    ARCHITECTURE.md     → 6+1 层架构参考"
+echo "    EXECUTION_FLOW.md   → 3 条 pipeline + guard 检查点"
+echo "    STATE_SYSTEM.md     → 状态机 + checkpoint + stall"
+echo "    KNOWLEDGE_SYSTEM.md → L0 Knowledge Bus + 5 模板"
+echo ""
+echo "  运行测试验证："
+echo "    for f in tests/test_*.py; do python3 \"\$f\" && echo PASS || echo FAIL; done"
 echo ""

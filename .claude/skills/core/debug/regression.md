@@ -36,7 +36,7 @@ regression 定义了 debug 修复后的回归验证清单规范。
 - 如果某项无法验证，标注 `[?]` 并说明原因
 - 回归未通过 → 不能标记为 done，回到 diagnosis 步骤
 
-## 自动触发 debug_log / debug_archive
+## 自动触发 knowledge-asset 沉淀
 
 回归验证全部通过后，提醒用户：
-> "问题已修复并验证。可以用 `debug_log` 或 `debug_archive` 将本次排查过程留档。"
+> "问题已修复并验证。可以用 `knowledge-asset`（troubleshooting 模式）将本次排查过程结构化沉淀到知识库。"

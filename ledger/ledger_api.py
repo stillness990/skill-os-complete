@@ -13,8 +13,8 @@ import json
 from pathlib import Path
 from typing import Optional
 
-from ledger_schema import TaskEntry, TaskLedger
-from orchestration_types import TaskStatus, TaskType, Workflow, FailureType
+from .ledger_schema import TaskEntry, TaskLedger
+from orchestration.orchestration_types import TaskStatus, TaskType, Workflow, FailureType
 
 
 class LedgerAPI:
@@ -119,7 +119,7 @@ class LedgerAPI:
             if hasattr(task, key):
                 setattr(task, key, value)
         # updated_at 由调用方设置或在此自动更新
-        from ledger_schema import _now_iso
+        from .ledger_schema import _now_iso
         task.updated_at = _now_iso()
         return task
 

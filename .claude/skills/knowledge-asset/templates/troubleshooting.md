@@ -1,22 +1,108 @@
-# Issue: [Title]
+# Troubleshooting: [问题名称]
 
-## Symptoms
-What indicates the problem
+> 模板: Troubleshooting | 版本: 5.0.0
+> 写入路径: `knowledge/troubleshooting/{YYYY-MM-DD}_{title}.md`
 
-## Root Cause
-Underlying reason
+---
 
-## Diagnosis
-Steps to confirm the issue
+## Core Insight
+<!-- 1 句话，≤80 chars — 根因 + 一句话修复 -->
+[根因简述 + 一句话修复方案]
 
-## Resolution
-Commands, scripts, or steps to fix
+---
 
-## Verification
-How to confirm it is fixed
+## Key Knowledge
+<!-- 3-8 条关键排查知识 -->
+- [涉及的系统组件/服务]
+- [触发条件/环境]
+- [影响范围]
+- [相关日志位置]
+- [相关配置文件]
 
-## Prevention
-Measures to avoid recurrence
+---
 
-## References
-Documentation, repos, links
+## Execution Steps
+<!-- 诊断和修复步骤，每步含操作+预期+分支 -->
+
+### Step 1: [确认现象]
+- **操作**: [检查命令]
+- **预期结果**: [正常 vs 异常表现]
+- **分支**: 如果异常 → 继续 Step 2
+
+### Step 2: [收集信息]
+- **操作**: [日志/状态/配置检查命令]
+- **预期结果**: [关键信息]
+- **分支**: 如果定位到原因 → 跳转到修复步骤
+
+### Step 3: [假设验证]
+- **操作**: [验证假设的具体操作]
+- **预期结果**: [证实或推翻假设]
+- **分支**: 如果证实 → 继续修复；否则 → 回到 Step 2
+
+### Step 4: [执行修复]
+- **操作**: [修复命令或代码变更]
+- **预期结果**: [问题解决的表现]
+- **分支**: 如果未解决 → 见 Failure Cases
+
+---
+
+## Commands / Code
+<!-- 诊断命令 + 修复代码 -->
+
+### 诊断命令
+```bash
+# 检查状态的命令
+command1
+# 查看日志的命令
+command2
+```
+
+### 修复代码
+```bash
+# 修复命令
+fix_command
+```
+
+---
+
+## Validation Method
+<!-- 如何确认问题已解决 -->
+
+1. [验证步骤 1：重新执行触发操作，确认不再报错]
+2. [验证步骤 2：检查相关服务状态]
+3. [验证步骤 3：监控一段时间确认稳定]
+
+---
+
+## Failure Cases
+<!-- 已知失败场景 -->
+
+| 症状 | 原因 | 诊断方法 | 解决方法 | 预防措施 |
+|------|------|---------|---------|---------|
+| [症状 1] | [根因 1] | [诊断命令 1] | [修复 1] | [预防 1] |
+| [症状 2] | [根因 2] | [诊断命令 2] | [修复 2] | [预防 2] |
+
+---
+
+## Best Practices
+<!-- 3-5 条预防建议 -->
+
+- [预防建议 1]
+- [预防建议 2]
+- [监控建议]
+
+---
+
+## Related Knowledge
+<!-- 关联知识 -->
+
+- `knowledge/sop/[相关SOP].md`
+- `knowledge/troubleshooting/[类似问题].md`
+- 调试报告: `系统路径或URL`
+
+---
+
+## Tags
+<!-- ≥3 个检索标签 -->
+
+#Bug #Troubleshooting #ComponentName #RootCause

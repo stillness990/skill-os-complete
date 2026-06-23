@@ -30,6 +30,8 @@ learning_state（学习状态更新：阶段、进度、next_action）
     ↓
 teach-plus/review（周复盘 / 阶段复盘 → 推进 consolidation / review_due / mastered）
     ↓
+knowledge-asset / knowledge-note（学习笔记结构化沉淀）
+    ↓
 execution_guard（完成检查：study_plan_ref / practice_log_ref / learning_state 更新）
 ```
 

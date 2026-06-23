@@ -4,12 +4,12 @@ Phase 3 — 验证输入标准化器的所有功能
 """
 
 import sys
-sys.path.insert(0, "/path/to/skill-os-complete")
-sys.path.insert(0, "/path/to/skill-os-complete/routing_assets")
-sys.path.insert(0, "/path/to/skill-os-complete/orchestration")
-sys.path.insert(0, "/path/to/skill-os-complete/ledger")
+import os
+_REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+if _REPO not in sys.path:
+    sys.path.insert(0, _REPO)
 
-from prompt_normalizer import PromptNormalizer, get_normalizer
+from orchestration.prompt_normalizer import PromptNormalizer, get_normalizer
 
 
 def test_slash_commands():

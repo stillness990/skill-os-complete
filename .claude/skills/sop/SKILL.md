@@ -1,9 +1,16 @@
 ---
 name: sop
 description: "Generate a standard operating procedure for handling a specific type of problem. Use when user asks how to handle/deal with a recurring issue type."
+status: legacy
+layer: compatibility
 ---
 
 # SOP Skill
+
+> **Legacy compatibility only.**
+> This skill is not the primary v5 knowledge sink.
+> For new v5 workflows, use `knowledge-asset` (SOP mode) as the primary long-term knowledge output.
+> 本 skill 保留仅用于历史兼容和 fallback 场景，v5 中 SOP 产出统一由 knowledge-asset 的 sop 模板承接。
 
 ## 用途
 针对某一类反复出现的问题，生成一份标准操作手册（SOP）。

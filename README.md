@@ -1,10 +1,52 @@
-# Skill OS v4
+# Skill OS v5
 
-**Claude Code 的本地技能操作系统 / 任务操作系统 / 学习工作流操作系统 / 执行监督操作系统**
+**Claude Code 的本地技能操作系统 / 任务操作系统 / 学习工作流操作系统 / 执行监督操作系统 / 知识资产引擎**
 
 在 Claude Code 中输入文字时，Hook 自动分析内容并注入对应技能指令，让 Claude 按预定义规范回答。无需切换模式、无需手动选择技能。
 
-> **当前版本：v4.0.0** — 新增 execution_guard 监督层 + learning_state 学习状态追踪。六层架构正式成型。
+> **当前版本：v5.0.0** — 6+1 层架构完整落地。L0 Knowledge Bus 唯一知识出口 + 统一状态层 + 7 条强制 Guard 规则 + checkpoint 恢复 + 5 层校验引擎。
+
+---
+
+## v5 6+1 层架构
+
+```
+┌──────────────────────────────────────────────────────────┐
+│  L6 Extension    ← orchestration/ + agents/ (预留)        │
+├──────────────────────────────────────────────────────────┤
+│  L5 Guard        ← 7 条强制规则 + 5 层校验引擎 + checkpoint│
+├──────────────────────────────────────────────────────────┤
+│  L4 State        ← .claude/state/ 统一状态层              │
+│                    current-task / learning-state           │
+│                    execution-state / task-history          │
+├──────────────────────────────────────────────────────────┤
+│  L3 Workflow     ← 3 pipelines + routing + skill dispatch │
+├──────────────────────────────────────────────────────────┤
+│  L2 Core         ← summarize / planning / debug           │
+├──────────────────────────────────────────────────────────┤
+│  L1 Router       ← rule_router + semantic_router          │
+│                    + normalizer + workflow_resolver        │
+├──────────────────────────────────────────────────────────┤
+│  ════════════════════════════════════════════════════     │
+│  L0 Knowledge Bus ← knowledge-asset Engine                │
+│                     唯一知识出口，横切所有层                │
+│  ════════════════════════════════════════════════════     │
+└──────────────────────────────────────────────────────────┘
+```
+
+---
+
+## v4 → v5 升级演进
+
+| 阶段 | 主题 | 核心交付 | 状态 |
+|------|------|---------|------|
+| Phase 1-2 | 仓库扫描 + 架构设计 | v5 四模型设计 | ✅ |
+| Phase 3 | knowledge-asset 升级 | L0 Knowledge Bus 建立，sop/debug_log 路由收编（本体保留 legacy） | ✅ |
+| Phase 4 | 路由系统修复 | knowledge-asset routing 24/24 accuracy | ✅ |
+| Phase 5 | Skill 收编 | summarize/debug/teach-plus 强制接入 L0 | ✅ |
+| Phase 6 | State System 建立 | .claude/state/ 统一状态层（4 JSON + checkpoint） | ✅ |
+| Phase 7 | Execution Guard | 5→7 规则 + 5 层校验引擎 + state/ 集成 | ✅ |
+| Phase 8 | 最终系统文档 | ARCHITECTURE / EXECUTION_FLOW / STATE_SYSTEM / KNOWLEDGE_SYSTEM | ✅ |
 
 ---
 
@@ -13,55 +55,20 @@
 ```text
 你在 Claude Code 中输入文字
   ↓
-UserPromptSubmit Hook 触发
+UserPromptSubmit Hook 触发（3 hooks 并行注入）
+  │  skill-router.py  → intent → workflow → skill 指令
+  │  task-guard.py    → stall 检测 + pipeline 上下文
+  │  completion-guard.py → 5 层校验提醒
   ↓
-skill-router.py 读取输入 → intent → workflow → primary skill
+L2 Core Skill 执行
   ↓
-自动注入对应技能规范
+L0 Knowledge Bus 结构化沉淀 → knowledge/{type}/
   ↓
-Claude 按规范回答（无命中则正常对话）
+L4 State 更新 → state/*.json
   ↓
-execution_guard 检查任务完成质量（v4 新增）
-```
-
----
-
-## 四阶段演进
-
-| 阶段 | 主题 | 核心交付 | 状态 |
-|------|------|---------|------|
-| **Phase 1** | Core Skill Foundation | summarize / planning / debug 三大基座 + 协议层 + router | ✅ 完成 |
-| **Phase 2** | Workflow + Task Ledger + Learning | 三条 workflow 正式落地 + teach-plus 学习控制层 + task_ledger 学习任务 schema | ✅ 完成 |
-| **Phase 3** | Execution Guard + Learning State | execution_guard 监督层 + learning_state 学习状态追踪 + teach-plus 正式接入 | ✅ 本轮完成 |
-| **Phase 4** | Multi-Agent Orchestration | complexity_detector / orchestrator / agent_definitions | 📋 结构预留 |
-
----
-
-## 六层架构
-
-```text
-┌──────────────────────────────────────────────────┐
-│  6. Extension Layer（扩展层）                      │
-│     orchestration / agents — Phase 4 预留         │
-├──────────────────────────────────────────────────┤
-│  5. Guard Layer（监督层）★ v4 新增                 │
-│     execution_guard — 状态流转 / artifact / stall │
-├──────────────────────────────────────────────────┤
-│  4. System Layer（系统状态层）                      │
-│     task_ledger / learning_state / knowledge      │
-│     debug_archive                                │
-├──────────────────────────────────────────────────┤
-│  3. Workflow Layer（工作流控制层）                   │
-│     delivery_pipeline / debug_pipeline            │
-│     learning_pipeline                            │
-├──────────────────────────────────────────────────┤
-│  2. Core Skills（核心基座技能层）                    │
-│     summarize / planning / debug                  │
-├──────────────────────────────────────────────────┤
-│  1. Router Layer（路由层）                          │
-│     hooks / routing_rules / workflow_templates     │
-│     skill_index / skill-rules                     │
-└──────────────────────────────────────────────────┘
+L5 Guard 校验 → 7 条规则 pass/fail
+  ↓
+返回用户 + Next Step
 ```
 
 ---
@@ -70,29 +77,123 @@ execution_guard 检查任务完成质量（v4 新增）
 
 ### 1. Delivery Pipeline（项目交付链）
 
-```text
-summarize/briefing → planning/project → task_ledger
-    → code_assistant → reviewer → changelog
-    → execution_guard（完成检查）
+```
+summarize → planning → task_ledger → code_assistant
+    → reviewer → changelog → knowledge-asset → execution_guard
 ```
 
 ### 2. Debug Pipeline（诊断排障链）
 
-```text
-summarize/briefing（可选）→ debug（诊断引擎）
-    → code_assistant（修复）→ debug_log / debug_archive
-    → execution_guard（完成检查）
+```
+summarize(可选) → debug → code_assistant → knowledge-asset → execution_guard
 ```
 
 ### 3. Learning Pipeline（学习成长链）
 
-```text
-summarize/briefing（学习底稿）→ planning/learning（学习计划）
-    → teach-plus/explain（理解框架）
-    → teach-plus/practice（每日学习单）
-    → task_ledger → learning_state（状态更新）
-    → teach-plus/review（周复盘）
-    → execution_guard（完成检查）
+```
+summarize → planning → teach-plus/explain → teach-plus/practice
+    → task_ledger → learning_state → teach-plus/review
+    → knowledge-asset → execution_guard
+```
+
+---
+
+## 内置技能（14 主技能 + 2 legacy）
+
+### L2 核心基座
+
+| 技能 | 触发方式 | 作用 |
+|------|---------|------|
+| `summarize` | `总结`、`摘要`、`读懂这个` | 知识整理与 briefing 生成，强制接入 L0 |
+| `planning` | `计划`、`规划`、`方案`、`学习路线` | 任务拆解与执行计划生成，可选接入 L0 |
+| `debug` | `报错`、`诊断`、`行为异常`、`排查` | 诊断引擎，强制接入 L0 (troubleshooting) |
+
+### L0 知识出口
+
+| 技能 | 触发方式 | 作用 |
+|------|---------|------|
+| `knowledge-asset` | `沉淀`、`知识资产`、`SOP`、`故障排查`、`留档` | **L0 Knowledge Bus** — 唯一知识出口，5 类 9-section 模板 |
+
+### 学习控制层
+
+| 技能 | 触发方式 | 作用 |
+|------|---------|------|
+| `teach-plus` | `我想学`、`今天学什么`、`复盘`、`给我讲` | 学习工作流控制器，强制接入 L0 (knowledge-note) |
+
+### 执行层
+
+| 技能 | 触发方式 | 作用 |
+|------|---------|------|
+| `ask` | `我想做`、`有个想法` | 需求澄清 |
+| `code_assistant` | `代码`、`修复`、`重构`、`帮我写` | 代码编写与修改 |
+| `reviewer` | `review`、`代码审查` | 代码审查 |
+| `changelog` | `changelog`、`更新日志` | 变更日志生成 |
+| `sanitize` | `脱敏`、`消毒`、`sanitize` | 敏感信息清理 |
+
+### 系统层
+
+| 技能 | 触发方式 | 作用 |
+|------|---------|------|
+| `task_ledger` | `下一步`、`当前进度`、`任务状态` | 系统层任务账本 |
+
+### 工具层
+
+| 技能 | 触发方式 | 作用 |
+|------|---------|------|
+| `echo` | `echo xxx` | 原样返回 |
+| `dify_kb_search` | `科目一`~`科目四` | 电工知识库检索 |
+
+### Legacy 兼容层
+
+| 技能 | 状态 | 说明 |
+|------|------|------|
+| `sop` | `status: legacy` | 路由规则已并入 knowledge-asset（sop 模式）；SKILL.md 保留作 fallback |
+| `debug_log` | `status: legacy` | 路由规则已并入 knowledge-asset（troubleshooting 模式）；SKILL.md 保留作 fallback |
+
+> **v5 变化**：`sop` 和 `debug_log` 的路由规则已合并入 `knowledge-asset`（sop 模式 / troubleshooting 模式）。两者的 `SKILL.md` 本体保留为 `status: legacy` 兼容层（fallback），不再删除。
+
+---
+
+## v5 系统能力
+
+### L0 Knowledge Bus（唯一知识出口）
+
+- **5 类模板**：SOP / Troubleshooting / Architecture / Knowledge Note / Project Plan
+- **9-section 强制 schema**：Core Insight → Tags，7 个必填 section
+- **模板自动匹配**：按 skill 类型 + 内容自动选择模板
+- **强制闭环**：debug/learning 强制沉淀，delivery 施工类强制
+- **禁止绕过**：任何 skill 不得直接写入 `knowledge/*` 或 `docs/*`
+
+### L1 智能路由
+
+- **RuleRouter**：53 knowledge-asset keywords + 16 intentPatterns + 6 组同义词映射
+- **SemanticRouter**：Ollama embedding 相似度检索 + 降级保护
+- **WorkflowResolver**：rule + semantic 加权融合 → 唯一 RoutePlan
+- **SAFE MODE**：embedding 不可用时退化为 rule_only
+
+### L4 统一状态层
+
+- **current-task.json**：活跃任务状态（单一写入者）
+- **learning-state.json**：7 阶段学习状态机 + knowledge_assets 关联
+- **execution-state.json**：pipeline 进度 + guard_status + safe_mode/degraded 标记
+- **task-history.json**：已完成/已取消任务归档索引
+- **checkpoint/**：状态快照（stage 完成自动 + 手动 `/checkpoint` + safe_mode 强制）
+
+### L5 Execution Guard（7 条强制规则）
+
+| # | 规则 | 类型 |
+|---|------|------|
+| R1 | done 必须带 artifact | v4 保留 |
+| R2 | 状态流转必须合法 | v4 保留 |
+| R3 | workflow 最小产物检查 | v4 保留，v5 扩展 |
+| R4 | 施工任务必须有落地证据 | v4 保留 |
+| R5 | 超时未更新处理 | v4 保留，v5 扩展 |
+| R6 | **knowledge-asset 强制沉淀** | **v5 新增 (L0)** |
+| R7 | **state/ 更新检查** | **v5 新增 (L4)** |
+
+**5 层校验引擎**（`completion-guard.py`）：
+```
+state_transition → artifacts → task_type → L0_ka → L4_state
 ```
 
 ---
@@ -110,211 +211,130 @@ cd /path/to/your-project
 bash /path/to/skill-os-complete/install.sh
 ```
 
----
-
-## 内置技能（15 个）
-
-### 核心基座（Core Skills）
-
-| 技能 | 定位 | 触发方式 | 模式 |
-|------|------|---------|------|
-| `summarize` | 知识整理与 briefing 生成器 | `总结`、`摘要`、`读懂这个`、`分析仓库` | basic / briefing |
-| `planning` | 任务拆解与执行计划生成器 | `计划`、`规划`、`方案`、`学习路线` | project / learning |
-| `debug` | 诊断引擎 | `报错`、`诊断`、`行为异常`、`排查` | 8 步诊断流程 |
-
-### 学习控制层（Learning Workflow Controller）
-
-| 技能 | 定位 | 触发方式 | 模式 |
-|------|------|---------|------|
-| `teach-plus` | 学习工作流控制器 | `我想学`、`今天学什么`、`复盘`、`给我讲` | explain / practice / review |
-
-### 执行层
-
-| 技能 | 触发方式 | 作用 |
-|------|---------|------|
-| `ask` | `我想做`、`有个想法`、`还没想好` | 需求澄清 |
-| `code_assistant` | `代码`、`修复`、`重构`、`帮我写` | 代码编写与修复 |
-| `sop` | `手册`、`怎么处理`、`SOP` | 生成标准操作手册 |
-| `reviewer` | `review`、`代码审查` | 代码质量检查 |
-| `changelog` | `changelog`、`更新日志` | 变更日志生成 |
-| `sanitize` | `脱敏`、`消毒`、`sanitize` | 敏感信息清理 |
-| `knowledge-asset` | `沉淀`、`知识资产`、`知识管理` | 任务/问题/项目 → 结构化知识资产 |
-
-### 系统层
-
-| 技能 | 触发方式 | 作用 |
-|------|---------|------|
-| `task_ledger` | `下一步`、`当前进度`、`任务状态` | 系统层任务账本 |
-| `execution_guard` ★v4 | 自动触发 | 任务完成质量监督 |
-
-### 工具层
-
-| 技能 | 触发方式 | 作用 |
-|------|---------|------|
-| `echo` | `echo xxx` | 原样返回 |
-| `debug_log` | `解决了`、`留档` | 排查记录归档 |
-| `dify_kb_search` | `科目一`~`科目四` | 电工知识库检索 |
+安装完成后自动：复制 `.claude/` → 部署编排模块 → 初始化 `state/` → 运行路由测试
 
 ---
 
-## v4 新增系统能力
-
-### execution_guard（执行监督层）
-
-负责约束任务完成质量，防止"跳步骤完成""空完成""只说不做"：
-
-- **task-state-machine**：8 状态 + 合法流转规则
-- **artifact-requirements**：4 种 task_type 的最小产物要求
-- **guard-rules**：5 条核心监督规则
-- **stall-policy**：超时检测与恢复策略
-- **audit-checklist**：人机通用验收清单
-
-详见 `.claude/system/execution_guard/`
-
-### learning_state（学习状态追踪）
-
-让 teach-plus 从"会讲课的技能"升级为"学习系统"：
-
-- **learning-state-schema**：学习主题的状态数据结构
-- **learning-state-machine**：7 阶段状态机 + 3 异常状态
-- **study-resume-policy**：1~2天/3~5天/7天+/14天+ 四级断档恢复策略
-
-详见 `.claude/system/learning_state/`
-
----
-
-## teach-plus 的新定位
-
-teach-plus 不再是"独立教学技能"，而是 **Learning Workflow Controller**：
-
-| 模式 | 状态推进 | 输入依赖 |
-|------|---------|---------|
-| `explain` | topic_new → understanding | summarize 学习底稿 |
-| `practice` | understanding → guided_practice / independent_practice | planning 学习计划 + learning_state |
-| `review` | consolidation → review_due → mastered | task_ledger 学习记录 + learning_state |
-
-teach-plus 建立在 summarize + planning + task_ledger + learning_state + execution_guard 之上。
-
----
-
-## 项目结构（v4）
+## 项目结构（v5.0.0）
 
 ```text
 skill-os-complete/
-├── CLAUDE.md                               # 仓库操作手册
-├── README.md                               # 本文件
-├── install.sh                              # 一键安装脚本
-├── deploy.sh                               # 一键部署/升级脚本
-├── uninstall.sh                            # 一键卸载脚本
-├── docs/                                   # 升级/验证/架构文档
-│   ├── upgrade/                            #   分阶段升级 runbook
-│   ├── validation/                         #   验收 checklist
-│   ├── architecture/                       #   架构说明
-│   └── failure/                            #   故障恢复方案
-├── reports/                                # Phase 1~6 交付报告
-├── routing_assets/                         # 路由资产（语义路由/规则路由测试）
-├── orchestration/                          # Phase 4+ 编排模块（workflow_resolver/execution_guard/safe_mode/...）
-├── ledger/                                 # 任务账本 Python 模块
-├── tests/                                  # 自动化测试套件
+├── README.md                                # 本文件
+├── CLAUDE.md                                # 仓库操作手册
+├── ARCHITECTURE.md                          # ☆ v5 系统架构文档
+├── EXECUTION_FLOW.md                        # ☆ v5 执行链路文档
+├── STATE_SYSTEM.md                          # ☆ v5 状态系统文档
+├── KNOWLEDGE_SYSTEM.md                      # ☆ v5 知识系统文档
+├── install.sh                               # 一键安装脚本
+├── deploy.sh                                # 一键部署/升级脚本
+├── uninstall.sh                             # 一键卸载脚本
+├── orchestration/                           # 编排引擎（13 模块）
+│   ├── prompt_normalizer.py                 #   输入标准化器
+│   ├── rule_router.py                       #   规则路由引擎
+│   ├── embedding_provider.py                #   Embedding 服务
+│   ├── semantic_router.py                   #   语义路由候选层
+│   ├── workflow_resolver.py                 #   多源融合决策器
+│   ├── skill_router.py                      #   技能执行器
+│   ├── execution_guard.py                   #   执行监督层
+│   ├── self_healing.py                      #   自愈管理器
+│   ├── safe_mode.py                         #   安全模式管理器
+│   ├── rollback_manager.py                  #   回滚管理器
+│   └── ...
+├── ledger/                                  # 任务账本
+├── routing_assets/                          # 路由数据资产
+├── tests/                                   # 自动化测试套件
+├── docs/                                    # 文档（升级/架构/验证）
+│   └── upgrade/                             #   8 phase 升级记录
 └── .claude/
-    ├── settings.json                       # Hook 注册入口
-    ├── skill-rules.json                    # 路由关键词规则
+    ├── settings.json                        # Hook 注册（3 hooks）
+    ├── skill-rules.json                     # 路由规则（53 knowledge-asset keywords）
     ├── hooks/
-    │   ├── skill-router.py                 # v4 router：intent→workflow→skill
-    │   ├── task-guard.py                   # ★ v4 任务状态校验 hook
-    │   └── completion-guard.py             # ★ v4 任务完成校验 hook
-    ├── router/
-    │   ├── skill_index.json                # 技能索引
-    │   ├── workflow_templates.json         # 3 条 workflow 定义
-    │   ├── routing_rules.py                # 路由规则模块
-    │   └── intent_schema.md                # 意图分类协议
-    ├── protocols/
-    │   ├── summary-protocol.md
-    │   ├── briefing-protocol.md
-    │   ├── plan-protocol.md
-    │   ├── debug-protocol.md
-    │   ├── learning-plan-protocol.md
-    │   ├── daily-study-protocol.md
-    │   └── weekly-review-protocol.md
-    ├── skills/
-    │   ├── core/
-    │   │   ├── summarize/                  # 知识整理与 briefing 生成器
-    │   │   ├── planning/                   # 任务拆解与执行计划生成器
-    │   │   └── debug/                      # 诊断引擎
-    │   ├── teach-plus/                     # 学习工作流控制器
-    │   │   ├── SKILL.md
-    │   │   ├── explain.md
-    │   │   ├── practice.md
-    │   │   ├── review.md
-    │   │   └── templates/
-    │   ├── ask/
-    │   ├── code_assistant/
-    │   ├── reviewer/
-    │   ├── changelog/
-    │   ├── sanitize/
-    │   ├── knowledge-asset/            # 知识资产系统
-    │   ├── sop/
-    │   ├── debug_log/
-    │   ├── echo/
-    │   ├── dify_kb_search/
-    │   ├── planner/                        # legacy shim → planning
-    │   ├── summarize/                      # legacy shim → core/summarize
-    │   ├── debug/                          # legacy shim → core/debug
-    │   └── task_manager/                   # legacy shim → task_ledger
-    ├── workflows/
-    │   ├── delivery_pipeline.md
-    │   ├── debug_pipeline.md
-    │   └── learning_pipeline.md
-    ├── system/
-    │   ├── task_ledger/                    # 任务账本（含 v4 扩展状态机）
-    │   ├── learning_state/                 # ★ v4 学习状态追踪
-    │   ├── execution_guard/                # ★ v4 执行监督层
-    │   ├── knowledge/                      # 知识沉淀
-    │   └── debug_archive/                  # 诊断归档
-    ├── orchestration/                      # ★ v4 Phase 4 扩展占位
-    │   ├── README.md
-    │   ├── schema/
-    │   ├── runs/
-    │   └── artifacts/
-    └── agents/                             # ★ v4 Phase 4 扩展占位
-        └── README.md
+    │   ├── skill-router.py                  #   L1 路由 hook
+    │   ├── task-guard.py                    #   L5 stall 检测 + 上下文注入
+    │   └── completion-guard.py              #   L5 5 层校验引擎
+    ├── router/                              # 路由配置
+    │   ├── skill_index.json                 #   技能注册表
+    │   ├── workflow_templates.json          #   3 条 workflow 定义
+    │   ├── knowledge_asset_synonyms.md      # ☆ 6 组同义词映射
+    │   └── ...
+    ├── protocols/                           # 7 个协议文件
+    ├── skills/                              # 14 个技能
+    │   ├── core/                            #   L2 核心基座
+    │   │   ├── summarize/                   #     知识整理
+    │   │   ├── planning/                    #     任务拆解
+    │   │   └── debug/                       #     诊断引擎
+    │   ├── knowledge-asset/                 # ☆ L0 Knowledge Bus
+    │   │   ├── SKILL.md                     #     引擎入口
+    │   │   ├── README.md                    #     使用说明
+    │   │   ├── templates/                   #     5 类 9-section 模板
+    │   │   └── knowledge/                   #     知识产出目录（5 子目录）
+    │   ├── teach-plus/                      #   学习工作流控制器
+    │   ├── ask/                             #   需求澄清
+    │   ├── code_assistant/                  #   代码编写
+    │   ├── reviewer/                        #   代码审查
+    │   ├── changelog/                       #   变更日志
+    │   ├── sanitize/                        #   脱敏处理
+    │   ├── task_ledger/                     #   系统层任务账本
+    │   ├── echo/                            #   工具
+    │   ├── dify_kb_search/                  #   工具
+    │   ├── sop/                             #   legacy 兼容层 (→ knowledge-asset)
+    │   └── debug_log/                       #   legacy 兼容层 (→ knowledge-asset)
+    ├── workflows/                           # 3 条 workflow 文档
+    ├── state/                               # ☆ v5 统一状态层
+    │   ├── README.md                        #   State 系统文档
+    │   ├── current-task.json                #   活跃任务
+    │   ├── learning-state.json              #   学习状态
+    │   ├── execution-state.json             #   执行状态
+    │   ├── task-history.json                #   任务历史
+    │   └── checkpoint/                      #   状态快照
+    └── system/                              # 系统文档（legacy + 参考）
+        ├── task_ledger/                     #   任务账本 schema
+        ├── learning_state/                  #   legacy → state/
+        ├── execution_guard/                 #   7 条 guard 规则
+        ├── knowledge/                       #   legacy → L0
+        └── debug_archive/                   #   诊断归档索引
 ```
 
-> ★ = v4 新增
+> ☆ = v5 新增/升级
+
+---
+
+## v5 系统文档
+
+| 文档 | 说明 |
+|------|------|
+| `ARCHITECTURE.md` | v5 6+1 层架构完整参考 — 每层详解、层间通信、v4→v5 迁移地图 |
+| `EXECUTION_FLOW.md` | 3 条 pipeline 逐阶段详解 + guard 检查点 + 异常恢复 |
+| `STATE_SYSTEM.md` | 状态机（task/learning/pipeline）+ 4 个 state 文件 schema + checkpoint 恢复 |
+| `KNOWLEDGE_SYSTEM.md` | L0 Knowledge Bus 架构 + 5 类模板 + 知识流转链路 |
+
+---
+
+## 运行测试
+
+```bash
+cd skill-os-complete
+for f in tests/test_*.py; do python3 "$f" && echo "PASS: $f" || echo "FAIL: $f"; done
+```
 
 ---
 
 ## 添加新技能
 
-### 第一步：创建技能定义
-
-```bash
-mkdir -p .claude/skills/<新技能名>
-```
-
-创建 `.claude/skills/<新技能名>/SKILL.md`，参考现有技能模板。
-
-### 第二步：注册路由规则
-
-在 `.claude/skill-rules.json` 的 `"skills"` 对象中添加关键词规则。
-
-### 第三步：验证
-
-```bash
-python3 -c "import json; json.load(open('.claude/skill-rules.json'))"
-echo '{"prompt": "你的测试输入"}' \
-  | CLAUDE_PROJECT_DIR="$(pwd)" python3 .claude/hooks/skill-router.py
-```
-
-**不需要重启 Claude Code，保存文件立即生效。**
+1. 新建 `.claude/skills/<技能名>/SKILL.md`
+2. 在 `.claude/skill-rules.json` 的 `skills` 对象里加关键词规则
+3. 在 `.claude/router/skill_index.json` 里注册
+4. 确定知识沉淀策略（强制/可选/不入）
+5. 保存，立刻生效，无需重启
 
 ---
 
 ## 兼容说明
 
-- 旧 `planner` / `summarize` / `debug` / `task_manager` 目录保留，内含 MIGRATION.md
-- `task_manager` 作为 `task_ledger` 的兼容 alias，路由规则中仍可触发
-- 推荐所有新引用指向 `skills/core/` 下的新版 skill 和 `system/` 下的系统层
+- `sop` 和 `debug_log` 的路由规则已合并入 `knowledge-asset`（sop/troubleshooting 模式）；`SKILL.md` 本体保留为 `status: legacy` 兼容层作 fallback，不删除
+- `planner` / `summarize` / `debug` / `task_manager` 旧目录保留作为 legacy shim
+- `system/task_ledger/` 和 `system/learning_state/` 标记 legacy → 状态已迁移至 `state/`
+- 推荐所有新引用指向 `skills/core/` 和 `state/`
 
 ---
 

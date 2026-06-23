@@ -1,9 +1,16 @@
 ---
 name: debug_log
 description: "After debugging, automatically generate a structured debug record and save it as a markdown file. Use when user says debug is done, issue resolved, or asks to log/record the debug session."
+status: legacy
+layer: compatibility
 ---
 
 # Debug Log Skill
+
+> **Legacy compatibility only.**
+> This skill is not the primary v5 knowledge sink.
+> For new v5 workflows, use `knowledge-asset` (troubleshooting mode) as the primary long-term knowledge output.
+> 本 skill 保留仅用于历史兼容和 fallback 场景，不再作为 debug pipeline 的主归档 stage。
 
 ## 用途
 每次 debug 结束后，把这次排查过程整理成结构化记录，存成 markdown 文件留档。

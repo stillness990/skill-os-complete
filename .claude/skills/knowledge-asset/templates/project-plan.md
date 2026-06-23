@@ -1,27 +1,102 @@
-# Project: [Name]
+# Project Plan: [项目名称]
 
-## Objectives
-Overall project goals
+> 模板: Project Plan | 版本: 5.0.0
+> 写入路径: `knowledge/project-plans/{YYYY-MM-DD}_{title}.md`
+> 关联计划: [planning 输出的 plan_ref]
 
-## Scope
-In-scope and out-of-scope
+---
 
-## Architecture
-Link to architecture doc or description
+## Core Insight
+<!-- 1 句话，≤80 chars — 项目目标和交付物 -->
+[一句话描述项目目标、范围和关键交付物]
 
-## Milestones
-### Phase 1
-- Tasks
-### Phase 2
-- Tasks
-### Phase 3
-- Tasks
+---
 
-## Risks
-Potential obstacles
+## Key Knowledge
+<!-- 3-8 条项目关键信息 -->
+- **项目目标**: [要解决什么问题/达成什么结果]
+- **范围边界**: 包含 [A, B, C]；不包含 [X, Y, Z]
+- **技术栈**: [主要技术]
+- **关键约束**: [时间/资源/技术限制]
+- **依赖项**: [依赖的外部系统/团队/服务]
+- **成功标准**: [如何判断项目完成]
 
-## Success Criteria
-Metrics for success
+---
 
-## Deliverables
-Expected outputs per milestone
+## Execution Steps
+<!-- 阶段分解：2-5 个阶段 -->
+
+### Phase 1: [阶段名称]（预计 [时间范围]）
+- **目标**: [阶段目标]
+- **任务**:
+  1. [任务 1] — [负责 skill]
+  2. [任务 2] — [负责 skill]
+- **交付物**: [产出 1, 产出 2]
+- **验收标准**: [如何确认阶段完成]
+- **依赖**: [依赖的前置条件]
+- **风险**: [阶段特定风险]
+
+### Phase 2: [阶段名称]（预计 [时间范围]）
+- **目标**:
+- **任务**:
+- **交付物**:
+- **验收标准**:
+- **依赖**:
+- **风险**:
+
+<!-- 按需添加 Phase 3-5 -->
+
+---
+
+## Commands / Code
+<!-- 项目初始化/部署命令等 -->
+
+```bash
+# 项目初始化
+git clone ...
+cd ...
+```
+
+---
+
+## Validation Method
+<!-- 如何验收项目完成 -->
+
+1. [验收 1：每个阶段的交付物是否达标]
+2. [验收 2：端到端流程是否走通]
+3. [验收 3：execution_guard 检查全部 PASS]
+
+---
+
+## Failure Cases
+<!-- 项目风险和应对 -->
+
+| 风险 | 影响 | 概率 | 缓解措施 | 应急方案 |
+|------|------|------|---------|---------|
+| [风险 1] | [影响] | 高/中/低 | [缓解] | [应急] |
+| [风险 2] | [影响] | 高/中/低 | [缓解] | [应急] |
+
+---
+
+## Best Practices
+<!-- 3-5 条 -->
+
+- [实践 1：如"每个 phase 完成后先跑测试再进入下一 phase"]
+- [实践 2]
+- [实践 3]
+
+---
+
+## Related Knowledge
+<!-- 关联知识 -->
+
+- 计划来源: `[planning 输出 ref]`
+- 架构文档: `knowledge/architecture/[相关架构].md`
+- SOP: `knowledge/sop/[相关SOP].md`
+
+---
+
+## Tags
+<!-- ≥3 个 -->
+
+#ProjectName #ProjectPlan #PhaseCount #TechStack

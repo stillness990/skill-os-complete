@@ -124,3 +124,4 @@ review 模式应读取 task_ledger 中的学习任务记录：
 - **回退是正常操作**：如果需要回退到 explain/practice，不要暗示这是失败；学习本来就是螺旋上升
 - **下周策略一句话**：必须用一句话概括下周核心策略，帮助用户聚焦
 - **保存复盘结果**：将复盘报告保存到 `practice/reviews/YYYY-WXX.md`
+- **知识沉淀**（v5 强制）：复盘报告生成后，将核心发现交给 `knowledge-asset`（knowledge-note 模式）沉淀到 `knowledge/knowledge-notes/`

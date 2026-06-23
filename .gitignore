@@ -1,5 +1,46 @@
+# ── Python ──
 __pycache__/
 *.pyc
 *.pyo
+
+# ── 系统/编辑器 ──
 .DS_Store
+*.orig
+*.bak
+*~
+
+# ── 备份/本地配置 ──
 backups/
+settings.local.json
+
+# ── v5 运行态数据（运行时生成，install.sh 会初始化模板，不入仓库）──
+# state/ 统一状态层：排除运行数据，保留 README 与 checkpoint 占位
+.claude/state/current-task.json
+.claude/state/learning-state.json
+.claude/state/execution-state.json
+.claude/state/task-history.json
+.claude/state/checkpoint/*
+!.claude/state/checkpoint/.gitkeep
+
+# telemetry 运行遥测（真实执行日志/时间线）
+.claude/state/telemetry/
+
+# legacy ledger 运行数据（保留 schema/task-ops.py，排除任务数据）
+# 注：tasks.json 保留为空模板（deploy.sh 升级校验依赖其存在）
+
+# knowledge-asset 实际知识产出（业务内容，不入仓库；保留目录占位）
+.claude/skills/knowledge-asset/knowledge/**
+!.claude/skills/knowledge-asset/knowledge/
+!.claude/skills/knowledge-asset/knowledge/**/.gitkeep
+
+# practice/ 学习工作区（个人学习数据）
+practice/
+
+# debug_archive 实际归档（业务内容，保留 README）
+.claude/system/debug_archive/*
+!.claude/system/debug_archive/README.md
+!.claude/system/debug_archive/.gitkeep
+
+# 测试/报告运行产物
+tests/reports/
+

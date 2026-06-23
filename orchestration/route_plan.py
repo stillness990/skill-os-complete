@@ -17,7 +17,7 @@ from dataclasses import dataclass, field
 from datetime import datetime, timezone
 from typing import Optional
 
-from orchestration_types import (
+from .orchestration_types import (
     Intent,
     Workflow,
     StageStatus,
@@ -134,6 +134,7 @@ class RouteStage:
     phase: str                               # 阶段名，如 "understand", "plan", "diagnose"
     skill: str                               # 技能名，如 "summarize", "planning", "debug"
     mode: str                                # 技能模式，如 "briefing", "project", "full"
+    component_type: str = "skill"            # v5: 组件类型 skill | system | ledger | state
     required: bool = True                    # 是否必须执行
     status: StageStatus = StageStatus.PENDING
     expected_output: str = ""                # 预期产出描述
@@ -169,6 +170,7 @@ class RouteStage:
             "phase": self.phase,
             "skill": self.skill,
             "mode": self.mode,
+            "component_type": self.component_type,
             "required": self.required,
             "status": self.status.value,
             "expected_output": self.expected_output,
@@ -381,6 +383,7 @@ def create_route_plan(
             phase=sd.get("phase", ""),
             skill=sd.get("skill", ""),
             mode=sd.get("mode", "default"),
+            component_type=sd.get("component_type", "skill"),
             required=sd.get("required", True),
             expected_output=sd.get("output", ""),
         )
@@ -409,7 +412,7 @@ def create_route_plan_from_template(
     从 WORKFLOW_STAGES 模板创建 RoutePlan。
     仅用于 Phase 2 测试和 rule-router 的快速创建。
     """
-    from orchestration_types import WORKFLOW_STAGES
+    from .orchestration_types import WORKFLOW_STAGES
 
     template_stages = WORKFLOW_STAGES.get(workflow, [])
     return create_route_plan(

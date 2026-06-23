@@ -1,141 +1,16 @@
 {
   "meta": {
     "version": "4.0.0",
+    "status": "legacy — 已迁移至 .claude/state/ (v5)",
+    "migrated_to": {
+      "active_tasks": ".claude/state/current-task.json",
+      "history": ".claude/state/task-history.json",
+      "migrated_at": "2026-06-22T00:00:00Z"
+    },
     "project": "skill-os-complete",
     "created": "2026-06-20T00:00:00Z",
-    "updated": "2026-06-21T08:46:17Z"
+    "updated": "2026-06-22T00:00:00Z",
+    "_notice": "本文件为 v4 legacy 空模板。v5 运行态任务数据已迁移至 .claude/state/，且运行数据不入仓库。"
   },
-  "tasks": [
-    {
-      "task_id": "tsk_20260620_001",
-      "title": "重构 summarize 目录结构",
-      "task_type": "delivery",
-      "workflow": "delivery_pipeline",
-      "intent": "project_delivery",
-      "status": "done",
-      "source": "planning",
-      "route_id": "",
-      "stage_id": "",
-      "stage_status": "",
-      "artifacts": [
-        ".claude/skills/core/summarize/SKILL.md"
-      ],
-      "expected_artifacts": [
-        ".claude/skills/core/summarize/SKILL.md",
-        ".claude/skills/core/summarize/modes/basic.md",
-        ".claude/skills/core/summarize/modes/briefing.md"
-      ],
-      "artifact_paths": [
-        ".claude/skills/core/summarize/SKILL.md"
-      ],
-      "artifact_refs": {
-        "plan_ref": "",
-        "implementation_ref": "",
-        "debug_report_ref": "",
-        "fix_ref": "",
-        "study_plan_ref": "",
-        "practice_log_ref": "",
-        "review_log_ref": "",
-        "changed_files": [],
-        "changelog_ref": "",
-        "review_ref": "",
-        "result_summary": ""
-      },
-      "guard_status": {
-        "last_check_at": null,
-        "stall_detected": false,
-        "warnings": []
-      },
-      "retry_count": 0,
-      "same_failure_type_count": 0,
-      "failure_type": null,
-      "next_action": "创建 .claude/skills/core/summarize/ 目录并写入 SKILL.md",
-      "safe_mode": false,
-      "safe_mode_reason": "",
-      "created_at": "2026-06-20T14:30:21Z",
-      "updated_at": "2026-06-21T08:43:59Z"
-    },
-    {
-      "task_id": "tsk_20260621_001",
-      "title": "v1 compatibility test",
-      "task_type": "delivery",
-      "workflow": "delivery_pipeline",
-      "intent": "",
-      "status": "cancelled",
-      "source": "test",
-      "route_id": "",
-      "stage_id": "",
-      "stage_status": "",
-      "artifacts": [],
-      "expected_artifacts": [],
-      "artifact_paths": [],
-      "artifact_refs": {
-        "plan_ref": null,
-        "implementation_ref": null,
-        "debug_report_ref": null,
-        "fix_ref": null,
-        "study_plan_ref": null,
-        "practice_log_ref": null,
-        "review_log_ref": null,
-        "changed_files": [],
-        "changelog_ref": null,
-        "review_ref": null,
-        "result_summary": ""
-      },
-      "guard_status": {
-        "last_check_at": null,
-        "stall_detected": false,
-        "warnings": []
-      },
-      "retry_count": 0,
-      "same_failure_type_count": 0,
-      "failure_type": null,
-      "next_action": "",
-      "safe_mode": false,
-      "safe_mode_reason": "",
-      "created_at": "2026-06-21T08:44:23Z",
-      "updated_at": "2026-06-21T08:45:44Z"
-    },
-    {
-      "task_id": "tsk_20260621_002",
-      "title": "v4 test",
-      "task_type": "delivery",
-      "workflow": "delivery_pipeline",
-      "intent": "",
-      "status": "executing",
-      "source": "manual",
-      "route_id": "",
-      "stage_id": "",
-      "stage_status": "",
-      "artifacts": [],
-      "expected_artifacts": [],
-      "artifact_paths": [],
-      "artifact_refs": {
-        "plan_ref": null,
-        "implementation_ref": null,
-        "debug_report_ref": null,
-        "fix_ref": null,
-        "study_plan_ref": null,
-        "practice_log_ref": null,
-        "review_log_ref": null,
-        "changed_files": [],
-        "changelog_ref": null,
-        "review_ref": null,
-        "result_summary": ""
-      },
-      "guard_status": {
-        "last_check_at": null,
-        "stall_detected": false,
-        "warnings": []
-      },
-      "retry_count": 1,
-      "same_failure_type_count": 1,
-      "failure_type": "artifact_missing",
-      "next_action": "",
-      "safe_mode": true,
-      "safe_mode_reason": "test safe mode",
-      "created_at": "2026-06-21T08:46:17Z",
-      "updated_at": "2026-06-21T08:46:17Z"
-    }
-  ]
+  "tasks": []
 }

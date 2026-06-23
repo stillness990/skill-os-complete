@@ -45,6 +45,14 @@
 | `planning` | 读取 briefing → 拆解阶段计划 | 关键结构 + 已知信息 + 风险 |
 | `debug` | 读取 briefing → 诊断入口 | 背景 + 关键结构 + 未知信息 |
 | `teach-plus` | 读取 briefing → 学习底稿 | 关键概念 + 结构 + 推荐 workflow |
+| **`knowledge-asset`** | **briefing 完成后结构化沉淀** | **核心结论 + 关键知识 + 推荐工作流**（v5 强制） |
+
+## v5：knowledge-asset 沉淀规则
+
+- **briefing 完成后必须调用 `knowledge-asset` 沉淀**
+- 模板选择：仓库/系统分析 → `architecture`；概念/知识整理 → `knowledge-note`
+- 沉淀路径：`.claude/skills/knowledge-asset/knowledge/{template_dir}/`
+- 沉淀后更新 `.claude/state/current-task.json` 的 `outputs.knowledge_asset_ref`
 
 ## 与其他模式的关系
 

@@ -1,26 +1,92 @@
-# System Architecture: [Project Name]
+# System Architecture: [系统名称]
 
-## Goals
-Overall goals of the system
+> 模板: Architecture | 版本: 5.0.0
+> 写入路径: `knowledge/architecture/{YYYY-MM-DD}_{title}.md`
 
-## Components
-- Component 1
-- Component 2
+---
 
-## Data Flow
-Diagram or description
+## Core Insight
+<!-- 1 句话，≤80 chars — 系统是什么、解决什么问题 -->
+[一句话说明系统的核心目标和价值]
 
-## Dependencies
-Libraries, services, APIs
+---
 
-## Risks
-Potential failure points
+## Key Knowledge
+<!-- 3-8 条架构要点 -->
+- [核心组件及其职责]
+- [数据流方向：从哪来 → 经过什么 → 到哪去]
+- [关键设计决策及原因]
+- [外部依赖（服务/库/API）]
+- [部署拓扑（如果相关）]
+- [技术栈]
+- [性能/安全约束]
 
-## Monitoring
-How to observe system health
+---
 
-## Scaling
-Plans for future growth
+## Execution Steps
+<!-- 架构决策记录 -->
 
-## References
-Links or documentation
+### Decision 1: [决策标题]
+- **背景**: [为什么需要做这个决策]
+- **方案**: [选择的方案]
+- **替代方案**: [考虑过但未采用的方案及原因]
+- **影响**: [对系统的影响]
+
+### Decision 2: [决策标题]
+- **背景**:
+- **方案**:
+- **替代方案**:
+- **影响**:
+
+---
+
+## Commands / Code
+<!-- 关键代码结构或部署命令 -->
+
+```
+[组件结构示意或关键接口定义]
+```
+
+---
+
+## Validation Method
+<!-- 如何验证架构合理性 -->
+
+1. [验证 1：核心数据流是否通畅]
+2. [验证 2：关键依赖是否可用]
+3. [验证 3：性能/安全指标是否达标]
+
+---
+
+## Failure Cases
+<!-- 架构层面的风险点和应对 -->
+
+| 风险 | 影响 | 概率 | 缓解措施 |
+|------|------|------|---------|
+| [风险 1] | [影响 1] | 高/中/低 | [缓解 1] |
+| [风险 2] | [影响 2] | 高/中/低 | [缓解 2] |
+
+---
+
+## Best Practices
+<!-- 3-5 条 -->
+
+- [架构原则 1]
+- [设计模式 2]
+- [演进建议 3]
+
+---
+
+## Related Knowledge
+<!-- 关联知识 -->
+
+- 源文件: `.claude/skills/[相关skill]/`
+- 协议: `.claude/protocols/[相关协议].md`
+- 工作流: `.claude/workflows/[相关工作流].md`
+
+---
+
+## Tags
+<!-- ≥3 个 -->
+
+#Architecture #SystemDesign #ComponentName #TechStack
