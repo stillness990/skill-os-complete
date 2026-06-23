@@ -39,6 +39,9 @@ fi
 # ── 复制 .claude/ ─────────────────────────────────────
 echo "  → 复制 .claude/ 到项目目录..."
 cp -r "$SCRIPT_DIR/.claude" "$TARGET/"
+# 清理不应部署的产物（脱敏备份 .bak / 编译缓存）
+find "$TARGET/.claude" -name '*.bak' -delete 2>/dev/null || true
+find "$TARGET/.claude" -type d -name '__pycache__' -exec rm -rf {} + 2>/dev/null || true
 
 # ── 复制项目文档 ──────────────────────────────────────
 echo "  → 复制项目文档..."
@@ -429,7 +432,7 @@ echo "  ── 执行层 ──"
 echo "    teach-plus         → 触发词：我想学、今天学什么、复盘"
 echo "    ask                → 触发词：我想做、有个想法"
 echo "    code_assistant     → 触发词：代码、修复、重构、帮我写"
-echo "    sanitize           → 触发词：脱敏、消毒、sanitize"
+echo "    sanitize           → 触发词：脱敏、消毒、sanitize、发布（v2: 运行态数据隔离 + 一键发布）"
 echo "    reviewer           → 触发词：review、代码审查"
 echo "    changelog          → 触发词：changelog、更新日志"
 echo ""
@@ -439,7 +442,7 @@ echo "    EXECUTION_FLOW.md  → 3 条 pipeline + guard 检查点"
 echo "    STATE_SYSTEM.md    → 状态机 + checkpoint + stall"
 echo "    KNOWLEDGE_SYSTEM.md → L0 Knowledge Bus + 5 模板"
 echo ""
-echo "  脱敏脚本位置：.claude/skills/sanitize/sanitize.py"
+echo "  脱敏脚本位置：.claude/skills/sanitize/sanitize.py（v2: scan/apply/publish）"
 echo "  卸载脚本位置：skill-os-uninstall.sh"
 echo "  升级脚本位置：skill-os-deploy.sh"
 echo ""

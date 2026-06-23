@@ -128,7 +128,7 @@ summarize → planning → teach-plus/explain → teach-plus/practice
 | `code_assistant` | `代码`、`修复`、`重构`、`帮我写` | 代码编写与修改 |
 | `reviewer` | `review`、`代码审查` | 代码审查 |
 | `changelog` | `changelog`、`更新日志` | 变更日志生成 |
-| `sanitize` | `脱敏`、`消毒`、`sanitize` | 敏感信息清理 |
+| `sanitize` | `脱敏`、`消毒`、`sanitize`、`发布` | 敏感字符串脱敏 + 运行态数据隔离 + 一键安全发布（v2） |
 
 ### 系统层
 
@@ -273,7 +273,7 @@ skill-os-complete/
     │   ├── code_assistant/                  #   代码编写
     │   ├── reviewer/                        #   代码审查
     │   ├── changelog/                       #   变更日志
-    │   ├── sanitize/                        #   脱敏处理
+    │   ├── sanitize/                        #   脱敏(字符串+运行态数据隔离+一键发布)
     │   ├── task_ledger/                     #   系统层任务账本
     │   ├── echo/                            #   工具
     │   ├── dify_kb_search/                  #   工具

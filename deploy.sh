@@ -194,6 +194,9 @@ if [ -d "$SCRIPT_DIR/.claude/skills" ]; then
     skname=$(basename "$skdir")
     mkdir -p "$TARGET/.claude/skills/$skname"
     cp -r "$skdir"* "$TARGET/.claude/skills/$skname/" 2>/dev/null || true
+    # 清理不应部署的产物（脱敏备份 .bak / 编译缓存）
+    find "$TARGET/.claude/skills/$skname" -name '*.bak' -delete 2>/dev/null || true
+    rm -rf "$TARGET/.claude/skills/$skname/__pycache__" 2>/dev/null || true
     echo "  ✓ skills/$skname/"
   done
 fi
