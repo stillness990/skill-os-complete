@@ -202,22 +202,32 @@ class WorkflowResolver:
         """
         RULE_WEIGHT = 0.6
         SEMANTIC_WEIGHT = 0.4
+        # 规则命中真实关键词 = 强信号（中文语义区分力较弱），给予确定性加成，
+        # 避免语义误判反超规则明确命中的 workflow（如“报错”→debug 被语义 delivery 反超）。
+        # 0.2 为实测最小有效值（30 例回归），不破坏现有命中。
+        RULE_HIT_BONUS = 0.2
 
         # Build scores per workflow
         scores: dict[str, float] = {}
         sources: dict[str, list[str]] = {}
 
         # Rule scores (normalized to 0~1)
+        rule_hit_workflows: set[str] = set()
         for rm in rule_candidates:
             wf = rm.workflow.value
             scores[wf] = scores.get(wf, 0) + rm.confidence * RULE_WEIGHT
             sources.setdefault(wf, []).append("rule")
+            rule_hit_workflows.add(wf)
 
         # Semantic scores
         for sc in semantic_candidates:
             wf = sc.workflow
             scores[wf] = scores.get(wf, 0) + sc.confidence * SEMANTIC_WEIGHT
             sources.setdefault(wf, []).append("semantic")
+
+        # 规则命中加成：命中真实关键词的 workflow 获得确定性加分
+        for wf in rule_hit_workflows:
+            scores[wf] = scores.get(wf, 0) + RULE_HIT_BONUS
 
         if not scores:
             return self._build_fallback_plan(normalized)

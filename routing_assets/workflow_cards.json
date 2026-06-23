@@ -18,7 +18,7 @@
         "en": [
           "plan", "planning", "architecture", "refactor", "implement",
           "design", "build", "develop", "delivery", "release",
-          "task", "next", "progress"
+          "task", "next", "progress", "review"
         ]
       },
       "trigger_patterns": [
@@ -39,17 +39,20 @@
           "报错", "bug", "诊断", "排查", "不工作", "异常",
           "莫名其妙", "不知道为什么", "不对劲", "卡住",
           "失败", "出错", "崩溃", "错误", "Error",
-          "permission denied", "command not found", "traceback"
+          "permission denied", "command not found", "traceback",
+          "超时", "无响应", "连接失败", "500", "502", "504"
         ],
         "en": [
           "debug", "error", "bug", "fix", "diagnose", "troubleshoot",
-          "broken", "crash", "fail", "exception", "stack trace"
+          "broken", "crash", "fail", "exception", "stack trace",
+          "timeout", "refused"
         ]
       },
       "trigger_patterns": [
         "(为什么|怎么).+(报错|不工作|出问题|不对劲|卡住|失败)",
         "(帮我|帮我看看|帮我诊断|帮我排查).+(报错|bug|问题|异常|错误)",
-        ".+(报|出现|遇到).+(错误|异常|bug|问题)"
+        ".+(报|出现|遇到).+(错误|异常|bug|问题)",
+        "(接口|服务|请求|系统).*(返回|报|出现|抛).*(500|502|504|错误|异常|失败|超时)"
       ],
       "negative_keywords": ["计划", "方案", "学习", "教程"],
       "priority": 2
@@ -64,18 +67,20 @@
           "我想学", "学会", "教我", "入门", "系统学习", "学习路线",
           "每日练习", "今天学什么", "复盘", "本周复盘", "学习复盘",
           "帮我设计学习", "学习计划", "练习", "训练", "理解",
-          "讲明白", "梳理", "是什么", "回顾"
+          "讲明白", "梳理", "是什么", "回顾",
+          "讲讲", "科普", "原理", "为什么要用", "什么区别"
         ],
         "en": [
           "learn", "study", "tutorial", "teach", "practice",
-          "review", "exercise", "training"
+          "exercise", "training"
         ]
       },
       "trigger_patterns": [
         "(我想学|我想.*学会|我要学).+",
         "(教我|带我).+(学|入门|理解).+",
         "(帮我|给我).+(学习|复盘|练习|设计学习).+",
-        "(今天|今日).+(学什么|学习|练习).+"
+        "(今天|今日).+(学什么|学习|练习).+",
+        "(讲讲|讲一下|说说|科普|介绍下|解释下).+(原理|概念|机制|是什么|怎么回事)"
       ],
       "negative_keywords": ["报错", "bug", "部署", "发布"],
       "priority": 3
